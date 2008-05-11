@@ -12,7 +12,7 @@ UI_DIR = .ui
 MOC_DIR = .moc
 OBJECTS_DIR = .obj
 
-QT += webkit network
+QT += webkit network script
 
 win32 {
     DEFINES += GITVERSION=0
@@ -53,6 +53,7 @@ HEADERS += \
     downloadmanager.h \
     edittableview.h \
     edittreeview.h \
+    extensions.h \
     history.h \
     locationbar.h \
     locationbar_p.h \
@@ -83,6 +84,7 @@ SOURCES += \
     downloadmanager.cpp \
     edittableview.cpp \
     edittreeview.cpp \
+    extensions.cpp \
     history.cpp \
     locationbar.cpp \
     languagemanager.cpp \
