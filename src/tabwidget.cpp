@@ -78,6 +78,10 @@ TabBar::TabBar(QWidget *parent)
         m_tabShortcuts.append(shortCut);
         connect(shortCut, SIGNAL(activated()), this, SLOT(selectTabAction()));
     }
+    setTabsClosable(true);
+    connect(this, SIGNAL(tabCloseRequested(int)),
+            this, SIGNAL(closeTab(int)));
+    setSelectionBehaviorOnRemove(QTabBar::SelectPreviousTab);
 }
 
 void TabBar::selectTabAction()
@@ -275,19 +279,6 @@ TabWidget::TabWidget(QWidget *parent)
     m_recentlyClosedTabsAction = new QAction(tr("Recently Closed Tabs"), this);
     m_recentlyClosedTabsAction->setMenu(m_recentlyClosedTabsMenu);
     m_recentlyClosedTabsAction->setEnabled(false);
-
-    // corner buttons
-    QToolButton *addTabButton = new QToolButton(this);
-    addTabButton->setDefaultAction(m_newTabAction);
-    addTabButton->setAutoRaise(true);
-    addTabButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
-    setCornerWidget(addTabButton, Qt::TopLeftCorner);
-
-    QToolButton *closeTabButton = new QToolButton(this);
-    closeTabButton->setDefaultAction(m_closeTabAction);
-    closeTabButton->setAutoRaise(true);
-    closeTabButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
-    setCornerWidget(closeTabButton, Qt::TopRightCorner);
 
     connect(this, SIGNAL(currentChanged(int)),
             this, SLOT(currentChanged(int)));
