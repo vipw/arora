@@ -231,6 +231,7 @@ TabWidget::TabWidget(QWidget *parent)
     , m_lineEdits(0)
     , m_tabBar(new TabBar(this))
 {
+    setDocumentMode(true);
     setElideMode(Qt::ElideRight);
 
     connect(m_tabBar, SIGNAL(newTab()), this, SLOT(newTab()));
