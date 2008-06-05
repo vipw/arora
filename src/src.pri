@@ -30,6 +30,8 @@ win32 {
     }
 }
 
+include(extensions/extensions.pri)
+
 FORMS += \
     aboutdialog.ui \
     addbookmarkdialog.ui \
@@ -53,7 +55,6 @@ HEADERS += \
     downloadmanager.h \
     edittableview.h \
     edittreeview.h \
-    extensions.h \
     history.h \
     locationbar.h \
     locationbar_p.h \
@@ -84,7 +85,6 @@ SOURCES += \
     downloadmanager.cpp \
     edittableview.cpp \
     edittreeview.cpp \
-    extensions.cpp \
     history.cpp \
     locationbar.cpp \
     languagemanager.cpp \

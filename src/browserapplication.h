@@ -73,6 +73,7 @@ class BookmarksManager;
 class BrowserMainWindow;
 class CookieJar;
 class DownloadManager;
+class ExtensionManager;
 class HistoryManager;
 class NetworkAccessManager;
 class LanguageManager;
@@ -99,6 +100,7 @@ public:
     static NetworkAccessManager *networkAccessManager();
     static BookmarksManager *bookmarksManager();
     static LanguageManager *languageManager();
+    static ExtensionManager *extensionManager();
     static QString dataDirectory();
 
     Qt::MouseButtons eventMouseButtons() const;
@@ -148,6 +150,7 @@ private:
     static NetworkAccessManager *s_networkAccessManager;
     static BookmarksManager *s_bookmarksManager;
     static LanguageManager *s_languageManager;
+    static ExtensionManager *s_extensionManager;
 
     QList<QPointer<BrowserMainWindow> > m_mainWindows;
     QByteArray m_lastSession;
