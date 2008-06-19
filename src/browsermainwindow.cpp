@@ -670,6 +670,8 @@ void BrowserMainWindow::setupMenu()
     
     ExtensionManager *extensionManager = BrowserApplication::extensionManager();
     toolsMenu->addActions(extensionManager->getActionsForMenu("MainWindow_ToolsMenu"));
+    connect(extensionManager, SIGNAL(installExtension(Extension *)),
+            this, SLOT(installExtension(Extension *)));
 
     // Help
     m_helpMenu = new QMenu(menuBar());
@@ -766,6 +768,11 @@ void BrowserMainWindow::retranslate()
     updateStatusbarActionText(m_viewStatusbarAction->isVisible());
     updateToolbarActionText(m_viewToolbarAction->isVisible());
     updateBookmarksToolbarActionText(m_viewBookmarkBarAction->isVisible());
+}
+
+void BrowserMainWindow::installExtension(Extension *extension)
+{
+    m_toolsMenu->addActions(extension->actions("MainWindow_ToolsMenu"));
 }
 
 void BrowserMainWindow::setupToolBar()
