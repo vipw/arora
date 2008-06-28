@@ -82,6 +82,7 @@ TabBar::TabBar(QWidget *parent)
     connect(this, SIGNAL(tabCloseRequested(int)),
             this, SIGNAL(closeTab(int)));
     setSelectionBehaviorOnRemove(QTabBar::SelectPreviousTab);
+    setMovable(true);
 }
 
 void TabBar::selectTabAction()
@@ -159,43 +160,26 @@ void TabBar::mousePressEvent(QMouseEvent *event)
 
 void TabBar::mouseMoveEvent(QMouseEvent *event)
 {
-    if (event->buttons() == Qt::LeftButton
-        && (event->pos() - m_dragStartPos).manhattanLength() > QApplication::startDragDistance()) {
-        QDrag *drag = new QDrag(this);
-        QMimeData *mimeData = new QMimeData;
-        QList<QUrl> urls;
-        int index = tabAt(event->pos());
-        QUrl url = tabData(index).toUrl();
-        urls.append(url);
-        mimeData->setUrls(urls);
-        mimeData->setText(tabText(index));
-        mimeData->setData(QLatin1String("action"), "tab-reordering");
-        drag->setMimeData(mimeData);
-        drag->exec();
+    if (event->buttons() == Qt::LeftButton) {
+        int diffX = event->pos().x() - m_dragStartPos.x();
+        int diffY = event->pos().y() - m_dragStartPos.y();
+        if ((event->pos() - m_dragStartPos).manhattanLength() > QApplication::startDragDistance()
+            && diffX < 3 && diffX > -3
+            && diffY < -10) {
+            QDrag *drag = new QDrag(this);
+            QMimeData *mimeData = new QMimeData;
+            QList<QUrl> urls;
+            int index = tabAt(event->pos());
+            QUrl url = tabData(index).toUrl();
+            urls.append(url);
+            mimeData->setUrls(urls);
+            mimeData->setText(tabText(index));
+            mimeData->setData(QLatin1String("action"), "tab-reordering");
+            drag->setMimeData(mimeData);
+            drag->exec();
+        }
     }
     QTabBar::mouseMoveEvent(event);
-}
-
-void TabBar::dragEnterEvent(QDragEnterEvent *event)
-{
-    const QMimeData *mimeData = event->mimeData();
-    QStringList formats = mimeData->formats();
-    if (formats.contains(QLatin1String("action"))
-        && (mimeData->data(QLatin1String("action")) == "tab-reordering")) {
-        event->acceptProposedAction();
-    }
-    QTabBar::dragEnterEvent(event);
-}
-
-void TabBar::dropEvent(QDropEvent *event)
-{
-    int fromIndex = tabAt(m_dragStartPos);
-    int toIndex = tabAt(event->pos());
-    if (fromIndex != toIndex) {
-        emit tabMoveRequested(fromIndex, toIndex);
-        event->acceptProposedAction();
-    }
-    QTabBar::dropEvent(event);
 }
 
 // When index is -1 index chooses the current tab
@@ -240,7 +224,7 @@ TabWidget::TabWidget(QWidget *parent)
     connect(m_tabBar, SIGNAL(closeOtherTabs(int)), this, SLOT(closeOtherTabs(int)));
     connect(m_tabBar, SIGNAL(reloadTab(int)), this, SLOT(reloadTab(int)));
     connect(m_tabBar, SIGNAL(reloadAllTabs()), this, SLOT(reloadAllTabs()));
-    connect(m_tabBar, SIGNAL(tabMoveRequested(int, int)), this, SLOT(moveTab(int, int)));
+    connect(m_tabBar, SIGNAL(tabMoved(int, int)), this, SLOT(moveTab(int, int)));
     setTabBar(m_tabBar);
 
     // Actions
@@ -300,19 +284,9 @@ void TabWidget::clear()
 
 void TabWidget::moveTab(int fromIndex, int toIndex)
 {
-    disconnect(this, SIGNAL(currentChanged(int)),
-        this, SLOT(currentChanged(int)));
-
-    QWidget *tabWidget = widget(fromIndex);
-    QIcon icon = tabIcon(fromIndex);
-    QString text = tabText(fromIndex);
-    QVariant data = m_tabBar->tabData(fromIndex);
-    removeTab(fromIndex);
-    insertTab(toIndex, tabWidget, icon, text);
-    m_tabBar->setTabData(toIndex, data);
-    connect(this, SIGNAL(currentChanged(int)),
-        this, SLOT(currentChanged(int)));
-    setCurrentIndex(toIndex);
+    QWidget *lineEdit = m_lineEdits->widget(fromIndex);
+    m_lineEdits->removeWidget(lineEdit);
+    m_lineEdits->insertWidget(toIndex, lineEdit);
 }
 
 void TabWidget::addWebAction(QAction *action, QWebPage::WebAction webAction)
