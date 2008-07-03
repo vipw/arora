@@ -215,7 +215,6 @@ TabWidget::TabWidget(QWidget *parent)
     , m_lineEdits(0)
     , m_tabBar(new TabBar(this))
 {
-    setDocumentMode(true);
     setElideMode(Qt::ElideRight);
 
     connect(m_tabBar, SIGNAL(newTab()), this, SLOT(newTab()));
@@ -226,6 +225,7 @@ TabWidget::TabWidget(QWidget *parent)
     connect(m_tabBar, SIGNAL(reloadAllTabs()), this, SLOT(reloadAllTabs()));
     connect(m_tabBar, SIGNAL(tabMoved(int, int)), this, SLOT(moveTab(int, int)));
     setTabBar(m_tabBar);
+    setDocumentMode(true);
 
     // Actions
     m_newTabAction = new QAction(QIcon(QLatin1String(":addtab.png")), tr("New &Tab"), this);
