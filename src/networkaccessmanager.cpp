@@ -50,12 +50,14 @@
 
 #include <QtCore/QSettings>
 
+#include <QtGui/QDesktopServices>
 #include <QtGui/QDialog>
 #include <QtGui/QMessageBox>
 #include <QtGui/QStyle>
 #include <QtGui/QTextDocument>
 
 #include <QtNetwork/QAuthenticator>
+#include <QtNetwork/QNetworkDiskCache>
 #include <QtNetwork/QNetworkProxy>
 #include <QtNetwork/QNetworkReply>
 #include <QtNetwork/QSslError>
@@ -72,6 +74,11 @@ NetworkAccessManager::NetworkAccessManager(QObject *parent)
             SLOT(sslErrors(QNetworkReply*, const QList<QSslError>&)));
 #endif
     loadSettings();
+
+    QNetworkDiskCache *diskCache = new QNetworkDiskCache(this);
+    QString location = QDesktopServices::storageLocation(QDesktopServices::CacheLocation);
+    diskCache->setCacheDirectory(location);
+    setCache(diskCache);
 }
 
 void NetworkAccessManager::loadSettings()
