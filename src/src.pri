@@ -104,6 +104,7 @@ SOURCES += \
 
 include(networkmonitor/networkmonitor.pri)
 include(cookiejar/cookiejar.pri)
+include(action/action.pri)
 include(utils/utils.pri)
 
 RESOURCES += data/data.qrc \
