@@ -126,10 +126,12 @@ TabWidget::TabWidget(QWidget *parent)
     // Actions
     m_newTabAction = new QAction(this);
     m_newTabAction->setShortcuts(QKeySequence::AddTab);
+    m_newTabAction->setObjectName(QLatin1String("file_newTab"));
     connect(m_newTabAction, SIGNAL(triggered()), this, SLOT(newTab()));
 
     m_closeTabAction = new QAction(this);
     m_closeTabAction->setShortcuts(QKeySequence::Close);
+    m_closeTabAction->setObjectName(QLatin1String("file_closeTab"));
     connect(m_closeTabAction, SIGNAL(triggered()), this, SLOT(closeTab()));
 
     m_newTabAction->setIcon(QIcon(QLatin1String(":addtab.png")));
@@ -150,9 +152,11 @@ TabWidget::TabWidget(QWidget *parent)
 
     m_nextTabAction = new QAction(this);
     connect(m_nextTabAction, SIGNAL(triggered()), this, SLOT(nextTab()));
+    m_nextTabAction->setObjectName(QLatin1String("file_nextTab"));
 
     m_previousTabAction = new QAction(this);
     connect(m_previousTabAction, SIGNAL(triggered()), this, SLOT(previousTab()));
+    m_previousTabAction->setObjectName(QLatin1String("file_nextTab"));
 
     m_recentlyClosedTabsMenu = new QMenu(this);
     connect(m_recentlyClosedTabsMenu, SIGNAL(aboutToShow()),
@@ -162,6 +166,7 @@ TabWidget::TabWidget(QWidget *parent)
     m_recentlyClosedTabsAction = new QAction(this);
     m_recentlyClosedTabsAction->setMenu(m_recentlyClosedTabsMenu);
     m_recentlyClosedTabsAction->setEnabled(false);
+    m_recentlyClosedTabsAction->setObjectName(QLatin1String("history_recentTabs"));
 
 #if QT_VERSION < 0x040500
     QToolButton *addTabButton = new QToolButton(this);

@@ -41,7 +41,8 @@
 ** Please review the following information to ensure GNU General
 ** Public Licensing requirements will be met:
 ** http://trolltech.com/products/qt/licenses/licensing/opensource/. If
-** you are unsure which license is appropriate for your use, please
+
+ ** you are unsure which license is appropriate for your use, please
 ** review the following information:
 ** http://trolltech.com/products/qt/licenses/licensing/licensingoverview
 ** or contact the sales department at sales@trolltech.com.
@@ -65,6 +66,8 @@
 #include "browsermainwindow.h"
 
 #include "aboutdialog.h"
+#include "actioncollection.h"
+#include "actionmanager.h"
 #include "autosaver.h"
 #include "bookmarks.h"
 #include "browserapplication.h"
@@ -74,6 +77,7 @@
 #include "languagemanager.h"
 #include "networkaccessmanager.h"
 #include "networkmonitor.h"
+#include "keyboardshortcutsdialog.h"
 #include "settings.h"
 #include "sourceviewer.h"
 #include "tabbar.h"
@@ -113,6 +117,8 @@ BrowserMainWindow::BrowserMainWindow(QWidget *parent, Qt::WindowFlags flags)
     , m_bookmarksToolbar(0)
     , m_tabWidget(new TabWidget(this))
     , m_autoSaver(new AutoSaver(this))
+    , m_actionCollection(new ActionCollection)
+    , m_actionManager(new ActionManager(this))
 {
     setAttribute(Qt::WA_DeleteOnClose, true);
     statusBar()->setSizeGripEnabled(true);
@@ -173,6 +179,8 @@ BrowserMainWindow::BrowserMainWindow(QWidget *parent, Qt::WindowFlags flags)
     centralWidget->setLayout(layout);
     setCentralWidget(centralWidget);
 
+    connect(m_tabWidget, SIGNAL(currentChanged(int)),
+            this, SLOT(currentChanged(int)));
     connect(m_tabWidget, SIGNAL(setCurrentTitle(const QString &)),
             this, SLOT(slotUpdateWindowTitle(const QString &)));
     connect(m_tabWidget, SIGNAL(showStatusBarMessage(const QString&)),
@@ -227,6 +235,7 @@ BrowserMainWindow::~BrowserMainWindow()
 {
     m_autoSaver->changeOccurred();
     m_autoSaver->saveIfNeccessary();
+    delete m_actionCollection;
 }
 
 void BrowserMainWindow::loadDefaultState()
@@ -607,6 +616,9 @@ void BrowserMainWindow::setupMenu()
     historyActions.append(m_historyRestoreLastSessionAction);
     m_historyMenu->setInitialActions(historyActions);
 
+    m_actionCollection->addMenu(new QMenu(tr("Hi&story")));
+    m_actionManager->setMenu(historyMenu);
+
     // Bookmarks
     m_bookmarksMenu = new BookmarksMenuBarMenu(this);
     connect(m_bookmarksMenu, SIGNAL(openUrl(const QUrl&, const QString &)),
@@ -631,6 +643,9 @@ void BrowserMainWindow::setupMenu()
     bookmarksActions.append(m_bookmarksShowAllAction);
     bookmarksActions.append(m_bookmarksAddAction);
     m_bookmarksMenu->setInitialActions(bookmarksActions);
+
+    m_actionCollection->addMenu(new QMenu(tr("&Bookmarks")));
+    m_actionManager->setMenu(bookmarksMenu);
 
     // Window
     m_windowMenu = new QMenu(menuBar());
@@ -662,10 +677,19 @@ void BrowserMainWindow::setupMenu()
     connect(m_toolsEnableInspector, SIGNAL(triggered(bool)),
             this, SLOT(slotToggleInspector(bool)));
     m_toolsEnableInspector->setCheckable(true);
+
     QSettings settings;
     settings.beginGroup(QLatin1String("websettings"));
     m_toolsEnableInspector->setChecked(settings.value(QLatin1String("enableInspector"), false).toBool());
     m_toolsMenu->addAction(m_toolsEnableInspector);
+
+    QAction *configureShortcutsAction = new QAction(QLatin1String("Configure Shortcuts"), this);
+    connect(configureShortcutsAction, SIGNAL(triggered()),
+            this, SLOT(configureShortcuts()));
+    configureShortcutsAction->setObjectName(QLatin1String("tools_configureShortcuts"));
+    toolsMenu->addAction(configureShortcutsAction);
+
+    m_actionCollection->addMenu(toolsMenu);
 
     // Help
     m_helpMenu = new QMenu(menuBar());
@@ -762,6 +786,30 @@ void BrowserMainWindow::retranslate()
     updateStatusbarActionText(m_viewStatusbarAction->isVisible());
     updateToolbarActionText(m_viewToolbarAction->isVisible());
     updateBookmarksToolbarActionText(m_viewBookmarkBarAction->isVisible());
+=======
+    QMenu *helpMenu = new QMenu(tr("&Help"), this);
+    QAction *aboutQt = helpMenu->addAction(tr("About &Qt"), qApp, SLOT(aboutQt()));
+    aboutQt->setObjectName(QLatin1String("help_aboutQt"));
+    QAction *aboutArora = helpMenu->addAction(tr("About &Arora"), this, SLOT(slotAboutApplication()));
+    aboutArora->setObjectName(QLatin1String("help_aboutArora"));
+    m_actionCollection->addMenu(helpMenu);
+
+    m_actionCollection->setActionsAlwaysVisible(true);
+    m_actionManager->addPermanentActions(m_actionCollection);
+}
+
+void BrowserMainWindow::configureShortcuts()
+{
+    KeyboardShortcutsDialog dialog;
+    dialog.exec();
+}
+
+void BrowserMainWindow::currentChanged(int index)
+{
+    qDebug() << "currentChagned" << index;
+    if (ActionCollection *document = dynamic_cast<ActionCollection*>(m_tabWidget->webView(index)))
+        m_actionManager->setDocumentActionCollection(document);
+>>>>>>> API tweak #2:src/browsermainwindow.cpp
 }
 
 void BrowserMainWindow::setupToolBar()

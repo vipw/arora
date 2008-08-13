@@ -66,6 +66,8 @@
 
 #include <qwebview.h>
 
+#include "actioncollection.h"
+
 QT_BEGIN_NAMESPACE
 class QAuthenticator;
 class QMouseEvent;
@@ -76,6 +78,7 @@ QT_END_NAMESPACE
 
 class TabWidget;
 class BrowserMainWindow;
+class WebViewSearch;
 class WebPage : public QWebPage
 {
     Q_OBJECT
@@ -107,9 +110,14 @@ private:
     QUrl m_loadingUrl;
 };
 
-class WebView : public QWebView
+class WebView : public QWebView, public ActionCollection
 {
     Q_OBJECT
+
+signals:
+    void showFind();
+    void findNext();
+    void findPrevious();
 
 public:
     WebView(QWidget *parent = 0);
@@ -156,13 +164,21 @@ private slots:
     void copyImageLocationToClipboard();
     void bookmarkLink();
 
+    void viewTextBigger();
+    void viewTextNormal();
+    void viewTextSmaller();
+
 private:
+    void createWebViewActions();
+
     QString m_statusBarText;
     QUrl m_initialUrl;
     int m_progress;
     int m_currentZoom;
     QList<int> m_zoomLevels;
     WebPage *m_page;
+
+    WebViewSearch *m_webViewSearch;
 };
 
 #endif

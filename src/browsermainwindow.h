@@ -67,6 +67,8 @@
 #include <qicon.h>
 #include <qurl.h>
 
+class ActionCollection;
+class ActionManager;
 class AutoSaver;
 class BookmarksToolBar;
 class ChaseWidget;
@@ -127,9 +129,6 @@ private slots:
     void slotFilePrint();
     void slotPrivateBrowsing();
     void slotFileSaveAs();
-    void slotEditFind();
-    void slotEditFindNext();
-    void slotEditFindPrevious();
     void slotShowBookmarksDialog();
     void slotAddBookmark();
     void slotZoomIn();
@@ -139,7 +138,6 @@ private slots:
     void slotViewToolbar();
     void slotViewBookmarksBar();
     void slotViewStatusbar();
-    void slotViewPageSource();
     void slotViewFullScreen(bool enable);
 
     void slotWebSearch();
@@ -161,6 +159,8 @@ private slots:
     void updateToolbarActionText(bool visible);
     void updateBookmarksToolbarActionText(bool visible);
     void showNetworkMonitor();
+    void currentChanged(int index);
+    void configureShortcuts();
 
 private:
     void retranslate();
@@ -247,9 +247,17 @@ private:
 
     TabWidget *m_tabWidget;
 
+<<<<<<< HEAD:src/browsermainwindow.h
     AutoSaver *m_autoSaver;
     bool m_menuBarVisible;
     bool m_statusBarVisible;
+=======
+    QIcon m_reloadIcon;
+    QIcon m_stopIcon;
+
+    ActionCollection *m_actionCollection;
+    ActionManager *m_actionManager;
+>>>>>>> API tweak #2:src/browsermainwindow.h
 };
 
 #endif // BROWSERMAINWINDOW_H
