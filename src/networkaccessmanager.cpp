@@ -82,9 +82,9 @@ void NetworkAccessManager::loadSettings()
     QNetworkProxy proxy;
     if (settings.value(QLatin1String("enabled"), false).toBool()) {
         if (settings.value(QLatin1String("type"), 0).toInt() == 0)
-            proxy.setType(QNetworkProxy::Socks5Proxy);
+            proxy = QNetworkProxy::Socks5Proxy;
         else
-            proxy.setType(QNetworkProxy::HttpProxy);
+            proxy = QNetworkProxy::HttpProxy;
         proxy.setHostName(settings.value(QLatin1String("hostName")).toString());
         proxy.setPort(settings.value(QLatin1String("port"), 1080).toInt());
         proxy.setUser(settings.value(QLatin1String("userName")).toString());
