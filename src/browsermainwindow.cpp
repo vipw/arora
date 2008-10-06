@@ -549,7 +549,7 @@ QUrl BrowserMainWindow::guessUrlFromString(const QString &string)
     // Check if it looks like a qualified URL. Try parsing it and see.
     bool hasSchema = test.exactMatch(urlStr);
     if (hasSchema) {
-        QUrl url(urlStr, QUrl::TolerantMode);
+        QUrl url = QUrl::fromEncoded(urlStr.toUtf8(), QUrl::TolerantMode);
         if (url.isValid())
             return url;
     }
@@ -565,25 +565,30 @@ QUrl BrowserMainWindow::guessUrlFromString(const QString &string)
         int dotIndex = urlStr.indexOf(QLatin1Char('.'));
         if (dotIndex != -1) {
             QString prefix = urlStr.left(dotIndex).toLower();
-            QString schema = (prefix == QLatin1String("ftp")) ? prefix : QLatin1String("http");
-            QUrl url(schema + QLatin1String("://") + urlStr, QUrl::TolerantMode);
+            QByteArray schema = (prefix == QLatin1String("ftp")) ? prefix.toLatin1() : "http";
+            QUrl url =
+                QUrl::fromEncoded(schema + "://" + urlStr.toUtf8(), QUrl::TolerantMode);
             if (url.isValid())
                 return url;
         }
     }
 
     // Fall back to QUrl's own tolerant parser.
-    QUrl url = QUrl(string, QUrl::TolerantMode);
+    QUrl url = QUrl::fromEncoded(string.toUtf8(), QUrl::TolerantMode);
 
     // finally for cases where the user just types in a hostname add http
     if (url.scheme().isEmpty())
-        url = QUrl(QLatin1String("http://") + string, QUrl::TolerantMode);
+        url = QUrl::fromEncoded("http://" + string.toUtf8(), QUrl::TolerantMode);
     return url;
 }
 
 void BrowserMainWindow::loadUrl(const QUrl &url)
 {
-    loadPage(url.toString());
+    if (!currentTab() || !url.isValid())
+        return;
+
+    m_tabWidget->currentLineEdit()->setText(QString::fromUtf8(url.toEncoded()));
+    m_tabWidget->loadUrlInCurrentTab(url);
 }
 
 void BrowserMainWindow::slotDownloadManager()
@@ -846,12 +851,8 @@ void BrowserMainWindow::slotSwapFocus()
 
 void BrowserMainWindow::loadPage(const QString &page)
 {
-    if (!currentTab() || page.isEmpty())
-        return;
-
     QUrl url = guessUrlFromString(page);
-    m_tabWidget->currentLineEdit()->setText(url.toString());
-    m_tabWidget->loadUrlInCurrentTab(url);
+    loadUrl(url);
 }
 
 TabWidget *BrowserMainWindow::tabWidget() const

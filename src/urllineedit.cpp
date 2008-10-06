@@ -229,7 +229,7 @@ void UrlIconLabel::mouseMoveEvent(QMouseEvent *event)
          && m_webView) {
         QDrag *drag = new QDrag(this);
         QMimeData *mimeData = new QMimeData;
-        mimeData->setText(m_webView->url().toString());
+        mimeData->setText(QString::fromUtf8(m_webView->url().toEncoded()));
         QList<QUrl> urls;
         urls.append(m_webView->url());
         mimeData->setUrls(urls);
@@ -269,7 +269,7 @@ void UrlLineEdit::setWebView(WebView *webView)
 
 void UrlLineEdit::webViewUrlChanged(const QUrl &url)
 {
-    m_lineEdit->setText(url.toString());
+    m_lineEdit->setText(QString::fromUtf8(url.toEncoded()));
     m_lineEdit->setCursorPosition(0);
 }
 
@@ -295,7 +295,7 @@ QLinearGradient UrlLineEdit::generateGradient(const QColor &color) const
 void UrlLineEdit::focusOutEvent(QFocusEvent *event)
 {
     if (m_lineEdit->text().isEmpty() && m_webView)
-        m_lineEdit->setText(m_webView->url().toString());
+        m_lineEdit->setText(QString::fromUtf8(m_webView->url().toEncoded()));
     ExLineEdit::focusOutEvent(event);
 }
 
