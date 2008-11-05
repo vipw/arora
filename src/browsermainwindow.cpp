@@ -348,9 +348,13 @@ void BrowserMainWindow::setupMenu()
     m_reload->setShortcuts(QKeySequence::Refresh);
     m_tabWidget->addWebAction(m_reload, QWebPage::Reload);
 
-    viewMenu->addAction(tr("&Make Text Bigger"), this, SLOT(slotViewTextBigger()), QKeySequence(Qt::CTRL | Qt::Key_Plus));
-    viewMenu->addAction(tr("&Make Text Normal"), this, SLOT(slotViewTextNormal()), QKeySequence(Qt::CTRL | Qt::Key_0));
-    viewMenu->addAction(tr("&Make Text Smaller"), this, SLOT(slotViewTextSmaller()), QKeySequence(Qt::CTRL | Qt::Key_Minus));
+    viewMenu->addAction(tr("Zoom &In"), this, SLOT(slotViewZoomIn()), QKeySequence(Qt::CTRL | Qt::Key_Plus));
+    viewMenu->addAction(tr("Zoom &Out"), this, SLOT(slotViewZoomOut()), QKeySequence(Qt::CTRL | Qt::Key_Minus));
+    viewMenu->addAction(tr("Reset &Zoom"), this, SLOT(slotViewResetZoom()), QKeySequence(Qt::CTRL | Qt::Key_0));
+    QAction *zoomTextOnlyAction = viewMenu->addAction(tr("Zoom &Text Only"));
+    connect(zoomTextOnlyAction, SIGNAL(toggled(bool)), this, SLOT(slotViewZoomTextOnly(bool)));
+    zoomTextOnlyAction->setCheckable(true);
+    zoomTextOnlyAction->setChecked(false);
 
     viewMenu->addSeparator();
     viewMenu->addAction(tr("Page S&ource"), this, SLOT(slotViewPageSource()), tr("Ctrl+Alt+U"));
@@ -766,25 +770,32 @@ void BrowserMainWindow::slotEditFindPrevious()
     currentTab()->findText(m_lastSearch, QWebPage::FindBackward);
 }
 
-void BrowserMainWindow::slotViewTextBigger()
+void BrowserMainWindow::slotViewZoomIn()
 {
     if (!currentTab())
         return;
-    currentTab()->setTextSizeMultiplier(currentTab()->textSizeMultiplier() + 0.1);
+    currentTab()->setZoomFactor(currentTab()->zoomFactor() + 0.1);
 }
 
-void BrowserMainWindow::slotViewTextNormal()
+void BrowserMainWindow::slotViewZoomOut()
 {
     if (!currentTab())
         return;
-    currentTab()->setTextSizeMultiplier(1.0);
+    currentTab()->setZoomFactor(currentTab()->zoomFactor() - 0.1);
 }
 
-void BrowserMainWindow::slotViewTextSmaller()
+void BrowserMainWindow::slotViewResetZoom()
 {
     if (!currentTab())
         return;
-    currentTab()->setTextSizeMultiplier(currentTab()->textSizeMultiplier() - 0.1);
+    currentTab()->setZoomFactor(1.0);
+}
+
+void BrowserMainWindow::slotViewZoomTextOnly(bool enable)
+{
+    if (!currentTab())
+        return;
+    currentTab()->page()->settings()->setAttribute(QWebSettings::ZoomTextOnly, enable);
 }
 
 void BrowserMainWindow::slotViewFullScreen(bool makeFullScreen)

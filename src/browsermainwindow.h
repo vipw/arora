@@ -98,9 +98,10 @@ private slots:
     void slotEditFindPrevious();
     void slotShowBookmarksDialog();
     void slotAddBookmark();
-    void slotViewTextBigger();
-    void slotViewTextNormal();
-    void slotViewTextSmaller();
+    void slotViewZoomIn();
+    void slotViewZoomOut();
+    void slotViewResetZoom();
+    void slotViewZoomTextOnly(bool enable);
     void slotViewToolbar();
     void slotViewBookmarksBar();
     void slotViewStatusbar();
