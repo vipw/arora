@@ -189,6 +189,16 @@ void ExLineEdit::paintEvent(QPaintEvent *)
     style()->drawPrimitive(QStyle::PE_PanelLineEdit, &panel, &p, this);
 }
 
+QVariant ExLineEdit::inputMethodQuery(Qt::InputMethodQuery property) const
+{
+    return m_lineEdit->inputMethodQuery(property);
+}
+
+void ExLineEdit::inputMethodEvent(QInputMethodEvent *e)
+{
+    m_lineEdit->event(e);
+}
+
 
 class UrlIconLabel : public QLabel
 {
@@ -325,4 +335,3 @@ void UrlLineEdit::paintEvent(QPaintEvent *event)
         painter.drawRect(progressRect);
     }
 }
-

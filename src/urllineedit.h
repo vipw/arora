@@ -61,12 +61,14 @@ public:
 
     QSize sizeHint() const;
 
+    QVariant inputMethodQuery(Qt::InputMethodQuery property) const;
 protected:
     void focusInEvent(QFocusEvent *event);
     void focusOutEvent(QFocusEvent *event);
     void keyPressEvent(QKeyEvent *event);
     void paintEvent(QPaintEvent *event);
     void resizeEvent(QResizeEvent *event);
+    void inputMethodEvent(QInputMethodEvent *e);
     bool event(QEvent *event);
 
 protected:
