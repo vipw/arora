@@ -162,7 +162,7 @@ void BrowserMainWindow::loadDefaultState()
 QSize BrowserMainWindow::sizeHint() const
 {
     QRect desktopRect = QApplication::desktop()->screenGeometry();
-    QSize size = desktopRect.size() * 0.9;
+    QSize size = desktopRect.size() * qreal(0.9);
     return size;
 }
 
@@ -666,12 +666,14 @@ void BrowserMainWindow::slotFileOpen()
 
 void BrowserMainWindow::slotFilePrintPreview()
 {
+#ifndef QT_NO_PRINTER
     if (!currentTab())
         return;
     QPrintPreviewDialog *dialog = new QPrintPreviewDialog(this);
     connect(dialog, SIGNAL(paintRequested(QPrinter *)),
             currentTab(), SLOT(print(QPrinter *)));
     dialog->exec();
+#endif
 }
 
 void BrowserMainWindow::slotFilePrint()
@@ -683,12 +685,14 @@ void BrowserMainWindow::slotFilePrint()
 
 void BrowserMainWindow::printRequested(QWebFrame *frame)
 {
+#ifndef QT_NO_PRINTER
     QPrinter printer;
     QPrintDialog *dialog = new QPrintDialog(&printer, this);
     dialog->setWindowTitle(tr("Print Document"));
     if (dialog->exec() != QDialog::Accepted)
         return;
     frame->print(&printer);
+#endif
 }
 
 void BrowserMainWindow::slotPrivateBrowsing()

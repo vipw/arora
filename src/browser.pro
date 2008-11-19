@@ -80,6 +80,10 @@ mac {
     TARGET = Browser
 }
 
+wince*: {
+    DEPLOYMENT_PLUGIN += qjpeg qgif
+}
+
 # install
 target.path = $$[QT_INSTALL_DEMOS]/browser
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS *.plist *.icns *.ico *.rc *.pro *.html *.doc images htmls
