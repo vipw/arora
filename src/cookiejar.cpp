@@ -6,11 +6,10 @@
 ** This file is part of the demonstration applications of the Qt Toolkit.
 **
 ** No Commercial Usage
-** This file contains pre-release code and may only be used for
-** evaluation and testing purposes.  It may not be used for commercial
-** development.  You may use this file in accordance with the terms and
-** conditions contained in the either Technology Preview License
-** Agreement or the Beta Release License Agreement.
+** This file contains pre-release code and may not be distributed.
+** You may use this file in accordance with the terms and conditions
+** contained in the either Technology Preview License Agreement or the
+** Beta Release License Agreement.
 **
 ** GNU General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU
