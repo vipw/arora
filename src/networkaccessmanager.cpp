@@ -143,18 +143,24 @@ void NetworkAccessManager::proxyAuthenticationRequired(const QNetworkProxy &prox
 #ifndef QT_NO_OPENSSL
 void NetworkAccessManager::sslErrors(QNetworkReply *reply, const QList<QSslError> &error)
 {
-    BrowserMainWindow *mainWindow = BrowserApplication::instance()->mainWindow();
+    // check if SSL certificate has been trusted already
+    QString replyHost = reply->url().host() + ":" + reply->url().port();
+    if(! sslTrustedHostList.contains(replyHost)) {
+        BrowserMainWindow *mainWindow = BrowserApplication::instance()->mainWindow();
 
-    QStringList errorStrings;
-    for (int i = 0; i < error.count(); ++i)
-        errorStrings += error.at(i).errorString();
-    QString errors = errorStrings.join(QLatin1String("\n"));
-    int ret = QMessageBox::warning(mainWindow, QCoreApplication::applicationName(),
-                           tr("SSL Errors:\n\n%1\n\n%2\n\n"
-                              "Do you want to ignore these errors?").arg(reply->url().toString()).arg(errors),
-                           QMessageBox::Yes | QMessageBox::No,
-                           QMessageBox::No);
-    if (ret == QMessageBox::Yes)
-        reply->ignoreSslErrors();
+        QStringList errorStrings;
+        for (int i = 0; i < error.count(); ++i)
+            errorStrings += error.at(i).errorString();
+        QString errors = errorStrings.join(QLatin1String("\n"));
+        int ret = QMessageBox::warning(mainWindow, QCoreApplication::applicationName(),
+                tr("SSL Errors:\n\n%1\n\n%2\n\n"
+                        "Do you want to ignore these errors for this host?").arg(reply->url().toString()).arg(errors),
+                        QMessageBox::Yes | QMessageBox::No,
+                        QMessageBox::No);
+        if (ret == QMessageBox::Yes) {
+            reply->ignoreSslErrors();
+            sslTrustedHostList.append(replyHost);
+        }
+    }
 }
 #endif

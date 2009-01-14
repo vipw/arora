@@ -46,6 +46,9 @@ class NetworkAccessManager : public QNetworkAccessManager
 public:
     NetworkAccessManager(QObject *parent = 0);
 
+private:
+    QList<QString> sslTrustedHostList;
+
 public slots:
     void loadSettings();
 
