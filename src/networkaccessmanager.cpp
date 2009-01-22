@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Benjamin C. Meyer <ben@meyerhome.net>
+ * Copyright 2008-2009 Benjamin C. Meyer <ben@meyerhome.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -235,6 +235,44 @@ void NetworkAccessManager::proxyAuthenticationRequired(const QNetworkProxy &prox
         auth->setUser(proxyDialog.userNameLineEdit->text());
         auth->setPassword(proxyDialog.passwordLineEdit->text());
     }
+}
+
+QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkRequest &req, QIODevice *outgoingData)
+{
+    // Save form data
+    if (op == PostOperation && outgoingData) {
+        QByteArray data;
+        QByteArray next = outgoingData->peek(1024 * 1024);
+        qDebug() << data << req.url();
+        return QNetworkAccessManager::createRequest(op, req, outgoingData);
+
+        tr("Would you like to save this password?");
+        tr("To review passwords you have saved and remove them, open the AutoFill pane of Safari preferences.");
+        tr("Never for this site");
+        tr("Not now");
+        tr("Yes");
+    }
+
+    /*
+    if (outgoingData && (op == PostOperation))
+	{
+		QSettings settings;
+		settings.beginGroup(QLatin1String("websettings"));
+		if ( settings.value(QLatin1String("savePasswords"), true).toBool())
+		{
+			m_data = outgoingData->readAll();
+			QUrl url = req.url();
+			if (!req.rawHeader("Referer").isEmpty())
+				url = QUrl(req.rawHeader("Referer"));
+			BrowserApplication::autoCompleter()->setFormData( url, m_data );
+			BrowserApplication::autoCompleter()->evaluate( url );
+			QBuffer* buf = new QBuffer(&m_data, this);
+			buf->open(QIODevice::ReadOnly);
+			return QNetworkAccessManager::createRequest(op, req, buf);
+		}
+	}
+	*/
+    return QNetworkAccessManager::createRequest(op, req, outgoingData);
 }
 
 #ifndef QT_NO_OPENSSL
