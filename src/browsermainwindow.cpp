@@ -141,6 +141,11 @@ BrowserMainWindow::BrowserMainWindow(QWidget *parent, Qt::WindowFlags flags)
 
     int size = m_tabWidget->lineEditStack()->sizeHint().height();
     m_navigationBar->setIconSize(QSize(size, size));
+
+#if defined(Q_WS_MAC)
+    // Set the menubar's parent to zero so the menubar becomes the "global" menubar.
+    menuBar()->setParent(0);
+#endif
 }
 
 BrowserMainWindow::~BrowserMainWindow()
