@@ -170,13 +170,12 @@ void ExLineEdit::focusOutEvent(QFocusEvent *event)
 void ExLineEdit::keyPressEvent(QKeyEvent *event)
 {
     m_lineEdit->event(event);
-    QWidget::keyPressEvent(event);
 }
 
 bool ExLineEdit::event(QEvent *event)
 {
     if (event->type() == QEvent::ShortcutOverride)
-        m_lineEdit->event(event);
+        return m_lineEdit->event(event);
     return QWidget::event(event);
 }
 

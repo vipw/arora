@@ -135,7 +135,10 @@ BrowserApplication::BrowserApplication(int &argc, char **argv)
 BrowserApplication::~BrowserApplication()
 {
     delete s_downloadManager;
-    qDeleteAll(m_mainWindows);
+    for (int i = 0; i < m_mainWindows.size(); ++i) {
+        BrowserMainWindow *window = m_mainWindows.at(i);
+        delete window;
+    }
     delete s_networkAccessManager;
     delete s_bookmarksManager;
 }
