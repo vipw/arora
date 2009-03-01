@@ -3,52 +3,67 @@ TARGET = browser
 QT += webkit network
 
 CONFIG += qt warn_on
+contains(QT_BUILD_PARTS, tools): CONFIG += uitools
+else: DEFINES += QT_NO_UITOOLS
 
 FORMS += \
+    addbookmarkdialog.ui \
+    bookmarks.ui \
     cookies.ui \
     cookiesexceptions.ui \
     downloaditem.ui \
     downloads.ui \
     history.ui \
     passworddialog.ui \
+    proxy.ui \
     settings.ui
 
 HEADERS += \
+    autosaver.h \
+    bookmarks.h \
+    browserapplication.h \
     browsermainwindow.h \
-    browsertab.h \
-    browsertabproxy.h \
     chasewidget.h \
     cookiejar.h \
     downloadmanager.h \
     edittableview.h \
     edittreeview.h \
     history.h \
+    modelmenu.h \
+    networkaccessmanager.h \
     searchlineedit.h \
-    sourcecodeview.h \
-    squeezelabel.h \
     settings.h \
-    util.h \
-    toolbarsearch.h
+    squeezelabel.h \
+    tabwidget.h \
+    toolbarsearch.h \
+    urllineedit.h \
+    webview.h \
+    xbel.h
 
 SOURCES += \
+    autosaver.cpp \
+    bookmarks.cpp \
+    browserapplication.cpp \
     browsermainwindow.cpp \
-    browsertab.cpp \
-    browsertabproxy.cpp \
     chasewidget.cpp \
     cookiejar.cpp \
+    downloadmanager.cpp \
     edittableview.cpp \
     edittreeview.cpp \
-    searchlineedit.cpp \
     history.cpp \
+    modelmenu.cpp \
+    networkaccessmanager.cpp \
+    searchlineedit.cpp \
     settings.cpp \
-    sourcecodeview.cpp \
     squeezelabel.cpp \
+    tabwidget.cpp \
     toolbarsearch.cpp \
-    util.cpp \
-    downloadmanager.cpp \
+    urllineedit.cpp \
+    webview.cpp \
+    xbel.cpp \
     main.cpp
 
-RESOURCES += images/images.qrc
+RESOURCES += data/data.qrc htmls/htmls.qrc
 
 build_all:!build_pass {
     CONFIG -= build_all
@@ -56,7 +71,7 @@ build_all:!build_pass {
 }
 
 win32 {
-   RC_FILE      = browser.rc
+   RC_FILE = browser.rc
 }
 
 mac {
@@ -67,7 +82,6 @@ mac {
 
 # install
 target.path = $$[QT_INSTALL_DEMOS]/browser
-sources.files = $$SOURCES $$HEADERS $$RESOURCES *.pro *.html *.doc images
+sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS *.plist *.icns *.ico *.rc *.pro *.html *.doc images htmls
 sources.path = $$[QT_INSTALL_DEMOS]/browser
 INSTALLS += target sources
-
