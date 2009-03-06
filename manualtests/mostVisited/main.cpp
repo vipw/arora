@@ -20,8 +20,9 @@
 #include <QtGui/QtGui>
 #include "history.h"
 
-QList<HistoryEntry> mostVisted(int count)
+QList<HistoryEntry> mostVisted(HistoryManager *manager, int count)
 {
+    QList<HistoryEntry> m_history = manager->history();
     QHash<QString, int> urlCount;
     for (int i = 0; i < m_history.count(); ++i) {
         QUrl url = m_history.at(i).url;
@@ -34,6 +35,7 @@ QList<HistoryEntry> mostVisted(int count)
         sort.insert(i.value(), i.key());
         ++i;
     }
+    HistoryFilterModel *m_historyFilterModel = manager->historyFilterModel();
     QList<HistoryEntry> mostVisited;
     QMapIterator<int, QString> i2(sort);
     i2.toBack();
@@ -48,18 +50,20 @@ QList<HistoryEntry> mostVisted(int count)
     return mostVisited;
 }
 
+
 int main(int argc, char **argv)
 {
     QApplication application(argc, argv);
     QCoreApplication::setOrganizationDomain(QLatin1String("arora-browser.org"));
     QCoreApplication::setApplicationName(QLatin1String("Arora"));
     QString version = QLatin1String("0.5");
+
     HistoryManager history;
-    QList<HistoryEntry> mostVisited = history.mostVisted(10);
+    QList<HistoryEntry> mostVisited = mostVisted(&history, 10);
 
     QString badhtml;
-    badhtml += "<title>Top Sites</title>";
-    badhtml += "<h3>Arora's Getto Top Sites Page</h3>";
+    badhtml += "<title>Top Sites</title>\n";
+    badhtml += "<h3>Arora's Getto Top Sites Page</h3>\n";
     badhtml += "<ol>\n";
     for (int i = 0; i < mostVisited.count(); ++i) {
         QString link = mostVisited[i].url;
