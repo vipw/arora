@@ -24,17 +24,22 @@ QList<HistoryEntry> mostVisted(HistoryManager *manager, int count)
 {
     QList<HistoryEntry> m_history = manager->history();
     QHash<QString, int> urlCount;
+    QUrl blank("about:config");
     for (int i = 0; i < m_history.count(); ++i) {
         QUrl url = m_history.at(i).url;
+        if (url == blank)
+            continue;
         int c = urlCount.value(url.toString());
         urlCount.insert(url.toString(),  ++c);
     }
+    qDebug() << urlCount.count();
     QMap<int, QString> sort;
     QHash<QString, int>::iterator i = urlCount.begin();
     while (i != urlCount.end()) {
         sort.insert(i.value(), i.key());
         ++i;
     }
+    qDebug() << sort.count();
     HistoryFilterModel *m_historyFilterModel = manager->historyFilterModel();
     QList<HistoryEntry> mostVisited;
     QMapIterator<int, QString> i2(sort);
