@@ -70,11 +70,11 @@
 class AutoSaver;
 class BookmarksToolBar;
 class ChaseWidget;
+class QWebFrame;
 class Extension;
 class TabWidget;
 class ToolbarSearch;
 class WebView;
-class QWebFrame;
 class QSplitter;
 class QFrame;
 class HistoryMenu;

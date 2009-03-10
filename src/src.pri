@@ -30,8 +30,6 @@ win32 {
     }
 }
 
-include(extensions/extensions.pri)
-
 FORMS += \
     aboutdialog.ui \
     addbookmarkdialog.ui \
@@ -104,6 +102,7 @@ SOURCES += \
     webviewsearch.cpp \
     xbel.cpp
 
+include(extensions/extensions.pri)
 include(networkmonitor/networkmonitor.pri)
 include(cookiejar/cookiejar.pri)
 include(utils/utils.pri)
