@@ -915,6 +915,7 @@ void HistoryFilterModel::load() const
 {
     if (m_loaded)
         return;
+    m_sourceCount.clear();
     m_sourceRow.clear();
     m_historyHash.clear();
     m_historyHash.reserve(sourceModel()->rowCount());
@@ -922,11 +923,43 @@ void HistoryFilterModel::load() const
         QModelIndex idx = sourceModel()->index(i, 0);
         QString url = idx.data(HistoryModel::UrlStringRole).toString();
         if (!m_historyHash.contains(url)) {
+            m_sourceCount.append(1);
             m_sourceRow.append(sourceModel()->rowCount() - i);
             m_historyHash[url] = sourceModel()->rowCount() - i;
+        } else {
+            m_sourceCount.append(0);
+            m_sourceCount[sourceModel()->rowCount() - m_historyHash[url]]++;
         }
     }
     m_loaded = true;
+}
+
+class RowAndCount {
+public:
+    RowAndCount(int r, int c) : row(r), count(c) {}
+    int row;
+    int count;
+    inline bool operator <(const RowAndCount &other) const
+        { return count > other.count; }
+};
+
+QList<int> HistoryFilterModel::mostVisited(int count) const
+{
+    QList<int> mostVisited;
+    if (count < 0)
+        return mostVisited;
+
+    load();
+    QList<RowAndCount> list;
+    for (int i = 0; i < m_sourceCount.count(); ++i)
+        list.append(RowAndCount(i, m_sourceCount[i]));
+    qSort(list);
+    list = list.mid(0, count);
+    foreach(RowAndCount rowAndCount, list) {
+        int sourceRow = sourceModel()->rowCount() - rowAndCount.row;
+        mostVisited.append(sourceRow);
+    }
+    return mostVisited;
 }
 
 void HistoryFilterModel::sourceRowsInserted(const QModelIndex &parent, int start, int end)

@@ -96,6 +96,7 @@ public:
     QString url;
     QString title;
     QDateTime dateTime;
+    int count;
 };
 
 class AutoSaver;
@@ -202,6 +203,7 @@ public:
     inline bool historyContains(const QString &url) const
         { load(); return m_historyHash.contains(url); }
     int historyLocation(const QString &url) const;
+    QList<int> mostVisited(int count) const;
 
     QModelIndex mapFromSource(const QModelIndex &sourceIndex) const;
     QModelIndex mapToSource(const QModelIndex &proxyIndex) const;
@@ -223,6 +225,7 @@ private slots:
 private:
     void load() const;
 
+    mutable QList<int> m_sourceCount;
     mutable QList<int> m_sourceRow;
     mutable QHash<QString, int> m_historyHash;
     mutable bool m_loaded;

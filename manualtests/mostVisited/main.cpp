@@ -20,42 +20,6 @@
 #include <QtGui/QtGui>
 #include "history.h"
 
-QList<HistoryEntry> mostVisted(HistoryManager *manager, int count)
-{
-    QList<HistoryEntry> m_history = manager->history();
-    QHash<QString, int> urlCount;
-    QUrl blank("about:config");
-    for (int i = 0; i < m_history.count(); ++i) {
-        QUrl url = m_history.at(i).url;
-        if (url == blank)
-            continue;
-        int c = urlCount.value(url.toString());
-        urlCount.insert(url.toString(),  ++c);
-    }
-    qDebug() << urlCount.count();
-    QMap<int, QString> sort;
-    QHash<QString, int>::iterator i = urlCount.begin();
-    while (i != urlCount.end()) {
-        sort.insert(i.value(), i.key());
-        ++i;
-    }
-    qDebug() << sort.count();
-    HistoryFilterModel *m_historyFilterModel = manager->historyFilterModel();
-    QList<HistoryEntry> mostVisited;
-    QMapIterator<int, QString> i2(sort);
-    i2.toBack();
-    while (i2.hasPrevious()) {
-        i2.previous();
-        QString url = i2.value();
-        int offset = m_historyFilterModel->historyLocation(url);
-        mostVisited.append(m_history[offset]);
-        if (--count == 0)
-            break;
-    }
-    return mostVisited;
-}
-
-
 int main(int argc, char **argv)
 {
     QApplication application(argc, argv);
@@ -64,17 +28,17 @@ int main(int argc, char **argv)
     QString version = QLatin1String("0.5");
 
     HistoryManager history;
-    QList<HistoryEntry> mostVisited = mostVisted(&history, 10);
+    QList<int> mostVisitedRow = history.historyFilterModel()->mostVisited(10);
 
+    HistoryModel *historyModel = history.historyModel();
     QString badhtml;
     badhtml += "<title>Top Sites</title>\n";
     badhtml += "<h3>Arora's Getto Top Sites Page</h3>\n";
     badhtml += "<ol>\n";
-    for (int i = 0; i < mostVisited.count(); ++i) {
-        QString link = mostVisited[i].url;
-        QString title = mostVisited[i].title;
-        if (title.isEmpty())
-            title = link;
+    for (int i = 0; i < mostVisitedRow.count(); ++i) {
+        QModelIndex idx = historyModel->index(mostVisitedRow[i], 0);
+        QString link = idx.data(HistoryModel::UrlStringRole).toString();
+        QString title = idx.data(HistoryModel::TitleRole).toString();
         badhtml += QString("<li><a href=\"%1\">%2</a></li>\n").arg(link).arg(title);
     }
     badhtml += "</ol>\n";
