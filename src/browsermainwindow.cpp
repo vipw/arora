@@ -41,8 +41,7 @@
 ** Please review the following information to ensure GNU General
 ** Public Licensing requirements will be met:
 ** http://trolltech.com/products/qt/licenses/licensing/opensource/. If
-
- ** you are unsure which license is appropriate for your use, please
+** you are unsure which license is appropriate for your use, please
 ** review the following information:
 ** http://trolltech.com/products/qt/licenses/licensing/licensingoverview
 ** or contact the sales department at sales@trolltech.com.
@@ -617,7 +616,7 @@ void BrowserMainWindow::setupMenu()
     m_historyMenu->setInitialActions(historyActions);
 
     m_actionCollection->addMenu(new QMenu(tr("Hi&story")));
-    m_actionManager->setMenu(historyMenu);
+    m_actionManager->setMenu(m_historyMenu);
 
     // Bookmarks
     m_bookmarksMenu = new BookmarksMenuBarMenu(this);
@@ -645,7 +644,7 @@ void BrowserMainWindow::setupMenu()
     m_bookmarksMenu->setInitialActions(bookmarksActions);
 
     m_actionCollection->addMenu(new QMenu(tr("&Bookmarks")));
-    m_actionManager->setMenu(bookmarksMenu);
+    m_actionManager->setMenu(m_bookmarksMenu);
 
     // Window
     m_windowMenu = new QMenu(menuBar());
@@ -677,7 +676,6 @@ void BrowserMainWindow::setupMenu()
     connect(m_toolsEnableInspector, SIGNAL(triggered(bool)),
             this, SLOT(slotToggleInspector(bool)));
     m_toolsEnableInspector->setCheckable(true);
-
     QSettings settings;
     settings.beginGroup(QLatin1String("websettings"));
     m_toolsEnableInspector->setChecked(settings.value(QLatin1String("enableInspector"), false).toBool());
@@ -687,9 +685,9 @@ void BrowserMainWindow::setupMenu()
     connect(configureShortcutsAction, SIGNAL(triggered()),
             this, SLOT(configureShortcuts()));
     configureShortcutsAction->setObjectName(QLatin1String("tools_configureShortcuts"));
-    toolsMenu->addAction(configureShortcutsAction);
+    m_toolsMenu->addAction(configureShortcutsAction);
 
-    m_actionCollection->addMenu(toolsMenu);
+    m_actionCollection->addMenu(m_toolsMenu);
 
     // Help
     m_helpMenu = new QMenu(menuBar());
@@ -786,7 +784,7 @@ void BrowserMainWindow::retranslate()
     updateStatusbarActionText(m_viewStatusbarAction->isVisible());
     updateToolbarActionText(m_viewToolbarAction->isVisible());
     updateBookmarksToolbarActionText(m_viewBookmarkBarAction->isVisible());
-=======
+
     QMenu *helpMenu = new QMenu(tr("&Help"), this);
     QAction *aboutQt = helpMenu->addAction(tr("About &Qt"), qApp, SLOT(aboutQt()));
     aboutQt->setObjectName(QLatin1String("help_aboutQt"));
@@ -809,7 +807,6 @@ void BrowserMainWindow::currentChanged(int index)
     qDebug() << "currentChagned" << index;
     if (ActionCollection *document = dynamic_cast<ActionCollection*>(m_tabWidget->webView(index)))
         m_actionManager->setDocumentActionCollection(document);
->>>>>>> API tweak #2:src/browsermainwindow.cpp
 }
 
 void BrowserMainWindow::setupToolBar()
