@@ -74,9 +74,9 @@ static QScriptValue qtscript_QWebSettings_throw_ambiguity_error_helper(
     QStringList lines = QString::fromLatin1(signatures).split(QLatin1Char('\n'));
     QStringList fullSignatures;
     for (int i = 0; i < lines.size(); ++i)
-        fullSignatures.append(QString::fromLatin1("%0(%1)").arg(functionName).arg(lines.at(i)));
+        fullSignatures.append(QString::fromLatin1("%0(%1)").arg(QLatin1String(functionName)).arg(lines.at(i)));
     return context->throwError(QString::fromLatin1("QFile::%0(): could not find a function match; candidates are:\n%1")
-        .arg(functionName).arg(fullSignatures.join(QLatin1String("\n"))));
+        .arg(QLatin1String(functionName)).arg(fullSignatures.join(QLatin1String("\n"))));
 }
 
 Q_DECLARE_METATYPE(QWebSettings*)
@@ -120,7 +120,7 @@ static const char * const qtscript_QWebSettings_FontSize_keys[] = {
 static QString qtscript_QWebSettings_FontSize_toStringHelper(QWebSettings::FontSize value)
 {
     if ((value >= QWebSettings::MinimumFontSize) && (value <= QWebSettings::DefaultFixedFontSize))
-        return qtscript_QWebSettings_FontSize_keys[static_cast<int>(value)];
+        return QLatin1String(qtscript_QWebSettings_FontSize_keys[static_cast<int>(value)]);
     return QString();
 }
 
@@ -191,7 +191,7 @@ static const char * const qtscript_QWebSettings_WebGraphic_keys[] = {
 static QString qtscript_QWebSettings_WebGraphic_toStringHelper(QWebSettings::WebGraphic value)
 {
     if ((value >= QWebSettings::MissingImageGraphic) && (value <= QWebSettings::TextAreaSizeGripCornerGraphic))
-        return qtscript_QWebSettings_WebGraphic_keys[static_cast<int>(value)];
+        return QLatin1String(qtscript_QWebSettings_WebGraphic_keys[static_cast<int>(value)]);
     return QString();
 }
 
@@ -266,7 +266,7 @@ static const char * const qtscript_QWebSettings_FontFamily_keys[] = {
 static QString qtscript_QWebSettings_FontFamily_toStringHelper(QWebSettings::FontFamily value)
 {
     if ((value >= QWebSettings::StandardFont) && (value <= QWebSettings::FantasyFont))
-        return qtscript_QWebSettings_FontFamily_keys[static_cast<int>(value)];
+        return QLatin1String(qtscript_QWebSettings_FontFamily_keys[static_cast<int>(value)]);
     return QString();
 }
 
@@ -347,7 +347,7 @@ static const char * const qtscript_QWebSettings_WebAttribute_keys[] = {
 static QString qtscript_QWebSettings_WebAttribute_toStringHelper(QWebSettings::WebAttribute value)
 {
     if ((value >= QWebSettings::AutoLoadImages) && (value <= QWebSettings::LinksIncludedInFocusChain))
-        return qtscript_QWebSettings_WebAttribute_keys[static_cast<int>(value)];
+        return QLatin1String(qtscript_QWebSettings_WebAttribute_keys[static_cast<int>(value)]);
     return QString();
 }
 
@@ -419,7 +419,7 @@ static QScriptValue qtscript_QWebSettings_prototype_call(QScriptContext *context
     if (!_q_self) {
         return context->throwError(QScriptContext::TypeError,
             QString::fromLatin1("QWebSettings.%0(): this object is not a QWebSettings")
-            .arg(qtscript_QWebSettings_function_names[_id+1]));
+            .arg(QLatin1String(qtscript_QWebSettings_function_names[_id+1])));
     }
 
     switch (_id) {

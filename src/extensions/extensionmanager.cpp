@@ -54,12 +54,12 @@ Extension::Extension(const QString &directory, QObject *parent)
     scriptFile.close();
 
     BrowserApplication *ba = BrowserApplication::instance();
-    m_engine.globalObject().setProperty("browserApplication", m_engine.newQObject(ba));
-    m_engine.globalObject().setProperty("networkAccessManager", m_engine.newQObject(ba->networkAccessManager()));
-    m_engine.globalObject().setProperty("historyManager", m_engine.newQObject(ba->historyManager()));
-    m_engine.globalObject().setProperty("cookieJar", m_engine.newQObject(ba->cookieJar()));
+    m_engine.globalObject().setProperty(QLatin1String("browserApplication"), m_engine.newQObject(ba));
+    m_engine.globalObject().setProperty(QLatin1String("networkAccessManager"), m_engine.newQObject(ba->networkAccessManager()));
+    m_engine.globalObject().setProperty(QLatin1String("historyManager"), m_engine.newQObject(ba->historyManager()));
+    m_engine.globalObject().setProperty(QLatin1String("cookieJar"), m_engine.newQObject(ba->cookieJar()));
 
-    m_engine.globalObject().setProperty("QWebSettings",
+    m_engine.globalObject().setProperty(QLatin1String("QWebSettings"),
         qtscript_create_QWebSettings_class(&m_engine),
         QScriptValue::SkipInEnumeration);
 
@@ -70,9 +70,9 @@ Extension::Extension(const QString &directory, QObject *parent)
         enabled = false;
     }
 
-    QString name = object.property("name").toString();
+    QString name = object.property(QLatin1String("name")).toString();
 
-    qDebug() << object.property("name").toString() << object.property("version").toString() << object.property("description").toString() << object.property("actions").isObject() << object.property("actions").isFunction();
+    //qDebug() << object.property("name").toString() << object.property("version").toString() << object.property("description").toString() << object.property("actions").isObject() << object.property("actions").isFunction();
     //object.property("installActions").call(global);
 
     QSettings settings;
@@ -100,13 +100,13 @@ QList<QAction*> Extension::actionFromValue(const QScriptValue &value)
 {
     QList<QAction*> actions;
 
-    if (!value.property("name").isValid()) {
+    if (!value.property(QLatin1String("name")).isValid()) {
         qDebug() << "got several actions";
         QScriptValueIterator it(value);
         while (it.hasNext()) {
             it.next();
             QScriptValue v = it.value();
-            if (v.property("seperator").isValid()) {
+            if (v.property(QLatin1String("seperator")).isValid()) {
                 qDebug() << "got seperator";
                 QAction *action = new QAction(this);
                 action->setSeparator(true);
@@ -117,8 +117,8 @@ QList<QAction*> Extension::actionFromValue(const QScriptValue &value)
             }
         }
     } else {
-        QString actionText = value.property("name").toString();
-        QScriptValue actionProperty = value.property("action");
+        QString actionText = value.property(QLatin1String("name")).toString();
+        QScriptValue actionProperty = value.property(QLatin1String("action"));
 
         QAction *action = new QAction(actionText, this);
         connect(action, SIGNAL(triggered()), this, SLOT(executeAction()));
@@ -134,7 +134,7 @@ QList<QAction*> Extension::actionFromValue(const QScriptValue &value)
             QVariant data;
             data.setValue(value);
             action->setData(data);
-            QScriptValue checkedProperty = value.property("checked");
+            QScriptValue checkedProperty = value.property(QLatin1String("checked"));
             if (checkedProperty.isValid()) {
                 action->setCheckable(true);
                 action->setChecked(checkedProperty.call().toBoolean());
@@ -150,19 +150,19 @@ void Extension::executeAction()
     if (QAction *action = qobject_cast<QAction*>(sender())) {
         QScriptValue v = action->data().value<QScriptValue>();
         qDebug() << v.isFunction() << v.toString();
-        QScriptValue result = v.property("action").call(v);
+        QScriptValue result = v.property(QLatin1String("action")).call(v);
         //extensions[0]->global);
 
         /*if (extensions[0]->m_engine.hasUncaughtException()) {
             qWarning() << "error running extension:" << extensions[0]->m_engine.uncaughtException().toString() << extensions[0]->m_engine.uncaughtExceptionLineNumber();
         }*/
-        action->setChecked(v.property("checked").call(v).toBoolean());
+        action->setChecked(v.property(QLatin1String("checked")).call(v).toBoolean());
     }
 }
 
 QString Extension::extensionName() const
 {
-    return object.property("name").toString();
+    return object.property(QLatin1String("name")).toString();
 }
 
 void Extension::loadSettings()
@@ -246,13 +246,13 @@ void ExtensionManager::init()
     loadExtensions(extensionsDirectoryName);
 
     // up one path
-    loadExtensions("../" + extensionsDirectoryName);
+    loadExtensions(QLatin1String("../") + extensionsDirectoryName);
 }
 
 void ExtensionManager::loadExtensions(const QString &dir)
 {
     qDebug() << "loadExtensions" << dir;
-    QDirIterator it(dir, QStringList("*.ext"), QDir::Dirs);
+    QDirIterator it(dir, QStringList(QLatin1String("*.ext")), QDir::Dirs);
     while (it.hasNext())
         loadExtension(it.next());
 }
@@ -292,7 +292,7 @@ QString ExtensionManager::userAgentForUrl(const QUrl &url)
     QScriptValueList args;
     args << url.toString();
     for (int i = 0; i < extensions.count(); ++i) {
-        QScriptValue property = extensions[i]->object.property("userAgentForUrl");
+        QScriptValue property = extensions[i]->object.property(QLatin1String("userAgentForUrl"));
         QScriptValue result = property.call(extensions[i]->object, args);
         if (result.isString()) {
             if (property.engine()->hasUncaughtException()) {

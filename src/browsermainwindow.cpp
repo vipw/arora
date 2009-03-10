@@ -669,7 +669,7 @@ void BrowserMainWindow::setupMenu()
     m_toolsMenu->addAction(m_toolsEnableInspector);
     
     ExtensionManager *extensionManager = BrowserApplication::extensionManager();
-    toolsMenu->addActions(extensionManager->getActionsForMenu("MainWindow_ToolsMenu"));
+    m_toolsMenu->addActions(extensionManager->getActionsForMenu(QLatin1String("MainWindow_ToolsMenu")));
     connect(extensionManager, SIGNAL(installExtension(Extension *)),
             this, SLOT(installExtension(Extension *)));
 
@@ -772,7 +772,7 @@ void BrowserMainWindow::retranslate()
 
 void BrowserMainWindow::installExtension(Extension *extension)
 {
-    m_toolsMenu->addActions(extension->actions("MainWindow_ToolsMenu"));
+    m_toolsMenu->addActions(extension->actions(QLatin1String("MainWindow_ToolsMenu")));
 }
 
 void BrowserMainWindow::setupToolBar()
