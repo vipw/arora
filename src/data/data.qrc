@@ -10,5 +10,7 @@
     <file>private.png</file>
     <file>../../AUTHORS</file>
     <file>../../LICENSE.GPL2</file>
+    <file>feed-icon-14x14.png</file>
+    <file>fetchLinks.js</file>
 </qresource>
 </RCC>

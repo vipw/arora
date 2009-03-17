@@ -23,6 +23,7 @@
 #include "clearbutton.h"
 #include "locationbarsiteicon.h"
 #include "privacyindicator.h"
+#include "rssbutton.h"
 #include "searchlineedit.h"
 #include "webview.h"
 
@@ -37,6 +38,7 @@ LocationBar::LocationBar(QWidget *parent)
     : LineEdit(parent)
     , m_webView(0)
     , m_siteIcon(0)
+    , m_rssButton(0)
     , m_privacyIndicator(0)
 {
     // Urls are always LeftToRight
@@ -50,6 +52,11 @@ LocationBar::LocationBar(QWidget *parent)
     // privacy indicator at rightmost position
     m_privacyIndicator = new PrivacyIndicator(this);
     addWidget(m_privacyIndicator, RightSide);
+
+    // rss in the middle
+    m_rssButton = new RssButton(this);
+    addWidget(m_rssButton, RightSide);
+    m_rssButton->hide();
 
     // clear button on the right
     ClearButton *m_clearButton = new ClearButton(this);
@@ -74,6 +81,7 @@ void LocationBar::setWebView(WebView *webView)
     Q_ASSERT(webView);
     m_webView = webView;
     m_siteIcon->setWebView(webView);
+    m_rssButton->setWebView(webView);
     connect(webView, SIGNAL(urlChanged(const QUrl &)),
             this, SLOT(webViewUrlChanged(const QUrl &)));
     connect(webView, SIGNAL(loadProgress(int)),
