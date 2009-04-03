@@ -20,6 +20,7 @@
 #include "webpluginfactory.h"
 
 #include "clicktoflashplugin.h"
+#include "rssplugin.h"
 
 #include <qwidget.h>
 #include <qurl.h>
@@ -85,6 +86,7 @@ void WebPluginFactory::init() const
     qDeleteAll(m_plugins);
     m_plugins.clear();
     m_plugins.append(new ClickToFlashPlugin);
+    m_plugins.append(new RSSPlugin);
     foreach (AroraWebPlugin *plugin, m_plugins) {
         foreach (const QWebPluginFactory::MimeType &pluginMimeType, plugin->metaPlugin().mimeTypes)
             m_pluginsCache.insert(pluginMimeType.name, plugin);

@@ -9,5 +9,6 @@ SOURCES += \
   arorawebplugin.cpp \
   webpluginfactory.cpp
 
+include(rss/rss.pri)
 include(clicktoflash/clicktoflash.pri)
 
