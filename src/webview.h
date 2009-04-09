@@ -66,6 +66,11 @@
 
 #include <qwebview.h>
 
+#ifdef WEBKIT_TRUNK
+#include <qwebelement.h>
+class QLabel;
+#endif
+
 class BrowserMainWindow;
 class TabWidget;
 class WebPage;
@@ -76,6 +81,13 @@ class WebView : public QWebView
 public:
     WebView(QWidget *parent = 0);
     WebPage *webPage() const { return m_page; }
+
+    void loadSettings();
+
+#ifdef WEBKIT_TRUNK
+    void keyPressEvent(QKeyEvent *event);
+    void keyReleaseEvent(QKeyEvent *event);
+#endif
 
     void loadUrl(const QUrl &url, const QString &title = QString());
     QUrl url() const;
@@ -117,6 +129,9 @@ private slots:
     void copyImageToClipboard();
     void copyImageLocationToClipboard();
     void bookmarkLink();
+#ifdef WEBKIT_TRUNK
+    void hideAccessKeys();
+#endif
 
 private:
     QString m_statusBarText;
@@ -125,6 +140,16 @@ private:
     int m_currentZoom;
     QList<int> m_zoomLevels;
     WebPage *m_page;
+
+#ifdef WEBKIT_TRUNK
+    bool m_enableAccessKeys;
+    bool checkForAccessKey(QKeyEvent *event);
+    void showAccessKeys();
+    void makeAccessKeyLabel(const QChar &accessKey, const QWebElement &element);
+    QList<QLabel*> m_accessKeyLabels;
+    QHash<QChar, QWebElement> m_accessKeyNodes;
+    bool m_accessKeysPressed;
+#endif
 };
 
 #endif
