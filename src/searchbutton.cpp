@@ -26,6 +26,7 @@
 
 SearchButton::SearchButton(QWidget *parent)
     : QAbstractButton(parent)
+    , m_clickable(false)
 {
     setFocusPolicy(Qt::NoFocus);
     setCursor(Qt::ArrowCursor);
@@ -36,17 +37,18 @@ QSize SearchButton::sizeHint() const
 {
     if (!m_cache.isNull())
         return m_cache.size();
-    if (completer())
+    if (m_clickable)
         return QSize(16, 16);
     return QSize(12, 16);
 }
 
 void SearchButton::mousePressEvent(QMouseEvent *event)
 {
-    if (event->button() == Qt::LeftButton && completer()) {
-        completer()->complete();
-        event->accept();
+    if (!m_clickable) {
+        event->ignore();
+        return;
     }
+
     QAbstractButton::mousePressEvent(event);
 }
 
@@ -100,23 +102,16 @@ void SearchButton::setImage(const QImage &image)
     setMinimumSize(sizeHint());
 }
 
+void SearchButton::setClickable(bool clickable)
+{
+    m_clickable = clickable;
+}
+
 void SearchButton::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event);
     if (m_cache.isNull())
-        m_cache = generateSearchImage(completer());
+        m_cache = generateSearchImage(m_clickable);
     QPainter painter(this);
     painter.drawImage(QPoint(0, 0), m_cache);
 }
-
-QCompleter *SearchButton::completer() const
-{
-    if (parentWidget()) {
-        if (QLineEdit *lineEdit = qobject_cast<QLineEdit*>(parentWidget()))
-            return lineEdit->completer();
-        if (QLineEdit *lineEdit = qobject_cast<QLineEdit*>(parentWidget()->parentWidget()))
-            return lineEdit->completer();
-    }
-    return 0;
-}
-

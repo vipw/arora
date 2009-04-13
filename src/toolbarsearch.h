@@ -71,6 +71,7 @@ class AutoSaver;
 class GoogleSuggest;
 class OpenSearchEngine;
 class OpenSearchManager;
+class QCompleter;
 class QModelIndex;
 class QStandardItem;
 class QStandardItemModel;
@@ -100,14 +101,19 @@ private slots:
     void completerActivated(const QModelIndex &index);
     bool completerHighlighted(const QModelIndex &index);
     void getSuggestions();
+    void showEnginesMenu();
+    void changeCurrentEngine();
+    void showDialog();
 
 protected:
     void changeEvent(QEvent *event);
     void focusInEvent(QFocusEvent *event);
 
 private:
+    BrowserMainWindow *mainWindow();
+
     void load();
-    void setupMenu();
+    void setupList();
     void retranslate();
 
     OpenSearchManager *m_openSearchManager;
@@ -123,6 +129,8 @@ private:
     QStandardItem *m_suggestionsItem;
     QStandardItem *m_recentSearchesItem;
     QTimer *m_suggestTimer;
+
+    QCompleter *m_completer;
 };
 
 #endif // TOOLBARSEARCH_H

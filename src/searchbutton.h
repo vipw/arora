@@ -30,6 +30,7 @@ class SearchButton : public QAbstractButton
 public:
     SearchButton(QWidget *parent = 0);
     void setImage(const QImage &image);
+    void setClickable(bool clickable);
     void paintEvent(QPaintEvent *event);
     QSize sizeHint() const;
 
@@ -38,8 +39,8 @@ protected:
 
 private:
     QImage generateSearchImage(bool dropDown);
-    QCompleter *completer() const;
     QImage m_cache;
+    bool m_clickable;
 };
 
 #endif // SEARCHBUTTON_H
