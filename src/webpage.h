@@ -26,6 +26,14 @@
 
 class QNetworkReply;
 class WebPluginFactory;
+class JavaScriptExternalObject : public QObject
+{
+    Q_OBJECT
+
+public slots:
+    void AddSearchProvider(const QString &url);
+};
+
 class WebPage : public QWebPage
 {
     Q_OBJECT
@@ -35,6 +43,7 @@ signals:
 
 public:
     WebPage(QObject *parent = 0);
+    ~WebPage();
     void loadSettings();
 
     WebPluginFactory *webPluginFactory();
@@ -47,10 +56,12 @@ protected:
 
 protected slots:
     void handleUnsupportedContent(QNetworkReply *reply);
+    void addExternalBinding(QWebFrame *frame = 0);
 
 protected:
     static WebPluginFactory *s_webPluginFactory;
     TabWidget::OpenUrlIn m_openTargetBlankLinksIn;
+    JavaScriptExternalObject *m_javaScriptBinding;
 };
 
 #endif // WEBPAGE_H
