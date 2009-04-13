@@ -66,6 +66,8 @@
 
 #include <qwebview.h>
 
+#include "tabwidget.h"
+
 class BrowserMainWindow;
 class TabWidget;
 class WebPage;
@@ -83,6 +85,9 @@ public:
     QString lastStatusBarText() const;
     inline int progress() const { return m_progress; }
     TabWidget *tabWidget() const;
+
+signals:
+    void search(const QUrl &searchUrl, TabWidget::OpenUrlIn openIn);
 
 public slots:
     void zoomIn();
@@ -117,6 +122,7 @@ private slots:
     void copyImageToClipboard();
     void copyImageLocationToClipboard();
     void bookmarkLink();
+    void searchRequested(QAction *action);
 
 private:
     QString m_statusBarText;
