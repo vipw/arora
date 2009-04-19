@@ -19,4 +19,4 @@ SOURCES += \
 
 FORMS += opensearchdialog.ui
 
-RESOURCES += scripts.qrc
+RESOURCES += opensearch.qrc
