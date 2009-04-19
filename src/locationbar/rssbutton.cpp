@@ -103,7 +103,7 @@ void RssButton::loadFinished(bool ok)
 
     QVariantList list = m_webView->page()->mainFrame()->evaluateJavaScript(m_script).toList();
     m_feeds.clear();
-    foreach(const QVariant &variant, list) {
+    foreach (const QVariant &variant, list) {
         QVariantMap map = variant.toMap();
         QString type = (map[QLatin1String("type")]).toString();
         QString title = (map[QLatin1String("title")]).toString();
