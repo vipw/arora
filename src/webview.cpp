@@ -640,26 +640,6 @@ void WebView::mouseReleaseEvent(QMouseEvent *event)
     event->setAccepted(isAccepted);
 }
 
-void WebView::keyPressEvent(QKeyEvent *event)
-{
-    switch (event->key()) {
-    case Qt::Key_Back:
-        pageAction(WebPage::Back)->trigger();
-        break;
-    case Qt::Key_Forward:
-        pageAction(WebPage::Forward)->trigger();
-        break;
-    case Qt::Key_Stop:
-        pageAction(WebPage::Stop)->trigger();
-        break;
-    case Qt::Key_Refresh:
-        pageAction(WebPage::Reload)->trigger();
-        break;
-    default:
-        QWebView::keyPressEvent(event);
-    }
-}
-
 void WebView::setStatusBarText(const QString &string)
 {
     m_statusBarText = string;
