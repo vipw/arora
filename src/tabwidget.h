@@ -132,12 +132,12 @@ public:
     QAction *nextTabAction() const;
     QAction *previousTabAction() const;
 
-    QWidget *locationBarStack() const;
-    QLineEdit *currentLocationBar() const;
+    QWidget *lineEditStack() const;
+    QLineEdit *currentLineEdit() const;
     WebView *currentWebView() const;
     WebView *webView(int index) const;
     WebViewSearch *webViewSearch(int index) const;
-    QLineEdit *locationBar(int index) const;
+    QLineEdit *lineEdit(int index) const;
     int webViewIndex(WebView *webView) const;
     WebView *makeNewTab(bool makeCurrent = false);
 
@@ -154,7 +154,6 @@ public slots:
     void loadString(const QString &string, OpenUrlIn tab = CurrentTab);
     void loadUrlFromUser(const QUrl &url, const QString &title = QString());
     void loadUrl(const QUrl &url, TabWidget::OpenUrlIn tab = CurrentTab, const QString &title = QString());
-    void createTab(const QByteArray &historyState, TabWidget::OpenUrlIn tab = CurrentTab);
     void newTab();
     void cloneTab(int index = -1);
     void closeTab(int index = -1);
@@ -209,7 +208,7 @@ private:
     bool m_swappedDelayedWidget;
 
     QCompleter *m_lineEditCompleter;
-    QStackedWidget *m_locationBars;
+    QStackedWidget *m_lineEdits;
     TabBar *m_tabBar;
 };
 
