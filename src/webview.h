@@ -100,6 +100,8 @@ public:
     QString lastStatusBarText() const;
     inline int progress() const { return m_progress; }
     TabWidget *tabWidget() const;
+    inline void setShowIconOnly(bool show) { m_showIconOnly = show; }
+    inline bool showIconOnly() { return m_showIconOnly; }
 
 signals:
     void search(const QUrl &searchUrl, TabWidget::OpenUrlIn openIn);
@@ -151,6 +153,7 @@ private:
     int m_currentZoom;
     QList<int> m_zoomLevels;
     WebPage *m_page;
+    bool m_showIconOnly;
 
 #if QT_VERSION >= 0x040600 || defined(WEBKIT_TRUNK)
     bool m_enableAccessKeys;

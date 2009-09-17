@@ -160,6 +160,7 @@ public slots:
     void closeOtherTabs(int index);
     void reloadTab(int index = -1);
     void reloadAllTabs();
+    void showIconOnly(int index, bool show);
     void nextTab();
     void previousTab();
     void bookmarkTabs();
@@ -188,6 +189,8 @@ private:
     static QUrl guessUrlFromString(const QString &url);
     QLabel *animationLabel(int index, bool addMovie);
     void retranslate();
+    void setTitle(WebView *webView, const QString& title);
+    void saveIconOnlyUrls();
 
     QAction *m_recentlyClosedTabsAction;
     QAction *m_newTabAction;
@@ -199,6 +202,7 @@ private:
     QMenu *m_recentlyClosedTabsMenu;
     static const int m_recentlyClosedTabsSize = 10;
     QList<QUrl> m_recentlyClosedTabs;
+    QList<QUrl> m_iconOnlyUrls;
     QList<WebActionMapper*> m_actions;
     bool m_swappedDelayedWidget;
 

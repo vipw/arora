@@ -123,6 +123,8 @@ TabWidget::TabWidget(QWidget *parent)
     connect(m_tabBar, SIGNAL(closeOtherTabs(int)), this, SLOT(closeOtherTabs(int)));
     connect(m_tabBar, SIGNAL(reloadTab(int)), this, SLOT(reloadTab(int)));
     connect(m_tabBar, SIGNAL(reloadAllTabs()), this, SLOT(reloadAllTabs()));
+    connect(m_tabBar, SIGNAL(showIconOnly(int, bool)),
+            this, SLOT(showIconOnly(int, bool)));
     setTabBar(m_tabBar);
     setDocumentMode(true);
     connect(m_tabBar, SIGNAL(tabMoved(int, int)),
@@ -205,6 +207,16 @@ TabWidget::TabWidget(QWidget *parent)
 
     connect(BrowserApplication::historyManager(), SIGNAL(historyCleared()),
         this, SLOT(historyCleared()));
+
+    settings.endGroup();
+
+    // Read the urls that should only have an icon displayed in the tab.
+    int size = settings.beginReadArray(QLatin1String("iconOnlyUrls"));
+    for (int i = 0; i < size; ++i) {
+        settings.setArrayIndex(i);
+        m_iconOnlyUrls.append(settings.value(QLatin1String("url")).toString());
+    }
+    settings.endArray();
 
     // Initialize Actions' labels
     retranslate();
@@ -529,6 +541,35 @@ void TabWidget::reloadAllTabs()
     }
 }
 
+void TabWidget::showIconOnly(int index, bool show)
+{
+    WebView *tab = webView(index);
+    tab->setShowIconOnly(show);
+
+    if (show) {
+        setTitle(tab, QString());
+        m_iconOnlyUrls.append(tab->url());
+    } else {
+        setTitle(tab, tab->title());
+        m_iconOnlyUrls.removeAll(tab->url());
+    }
+
+    saveIconOnlyUrls();
+}
+
+void TabWidget::saveIconOnlyUrls()
+{
+    // Save the "faviconized" urls.
+    QSettings settings;
+    settings.beginWriteArray(QLatin1String("iconOnlyUrls"));
+    for (int i = 0; i < m_iconOnlyUrls.size(); ++i) {
+        settings.setArrayIndex(i);
+        settings.setValue(QLatin1String("url"),
+                          m_iconOnlyUrls.at(i).toString());
+    }
+    settings.endArray();
+}
+
 void TabWidget::bookmarkTabs()
 {
     AddBookmarkDialog dialog;
@@ -747,10 +788,23 @@ void TabWidget::webViewTitleChanged(const QString &title)
     int index = webViewIndex(webView);
     if (-1 == index)
         return;
-    QString tabTitle = title;
-    if (title.isEmpty())
-        tabTitle = QString::fromUtf8(webView->url().toEncoded());
-    tabTitle.replace(QLatin1Char('&'), QLatin1String("&&"));
+
+    setTitle(webView, title);
+}
+
+
+void TabWidget::setTitle(WebView *webView, const QString& title)
+{
+    QString tabTitle;
+
+    if (! webView->showIconOnly()) {
+        tabTitle = title;
+        if (title.isEmpty())
+            tabTitle = QString::fromUtf8(webView->url().toEncoded());
+        tabTitle.replace(QLatin1Char('&'), QLatin1String("&&"));
+    }
+
+    int index = webViewIndex(webView);
     setTabText(index, tabTitle);
     setTabToolTip(index, tabTitle);
     if (currentIndex() == index)
@@ -764,6 +818,13 @@ void TabWidget::webViewUrlChanged(const QUrl &url)
     int index = webViewIndex(webView);
     if (-1 == index)
         return;
+
+    QUrl element;
+    foreach (element, m_iconOnlyUrls) {
+        if (element == url)
+            webView->setShowIconOnly(true);
+    }
+
     m_tabBar->setTabData(index, url);
     emit tabsChanged();
 }
