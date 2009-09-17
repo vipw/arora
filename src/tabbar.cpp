@@ -63,6 +63,7 @@
 #include "tabbar.h"
 
 #include "tabwidget.h"
+#include "webview.h"
 
 #include <qaction.h>
 #include <qapplication.h>
@@ -181,6 +182,16 @@ void TabBar::contextMenuRequested(const QPoint &position)
 
         menu.addSeparator();
 
+        QAction *showIconAction = new QAction(tr("Show favicon only"), &menu);
+        showIconAction->setCheckable(true);
+        showIconAction->setData(index);
+        showIconAction->setChecked(tabWidget->webView(index)->showIconOnly());
+        menu.addAction(showIconAction);
+        connect(showIconAction, SIGNAL(toggled(bool)),
+                this, SLOT(showIconOnly(bool)));
+
+        menu.addSeparator();
+
         action = menu.addAction(tr("Reload Tab"),
                                 this, SLOT(reloadTab()), QKeySequence::Refresh);
         action->setData(index);
@@ -190,6 +201,7 @@ void TabBar::contextMenuRequested(const QPoint &position)
     menu.addAction(tr("Reload All Tabs"), this, SIGNAL(reloadAllTabs()));
     menu.addSeparator();
     menu.addAction(tabWidget->bookmarkTabsAction());
+
     menu.exec(QCursor::pos());
 }
 
@@ -214,6 +226,14 @@ void TabBar::closeOtherTabs()
     if (QAction *action = qobject_cast<QAction*>(sender())) {
         int index = action->data().toInt();
         emit closeOtherTabs(index);
+    }
+}
+
+void TabBar::showIconOnly(bool show)
+{
+    if (QAction *action = qobject_cast<QAction*>(sender())) {
+        int index = action->data().toInt();
+        emit showIconOnly(index, show);
     }
 }
 

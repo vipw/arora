@@ -79,6 +79,7 @@ signals:
     void cloneTab(int index);
     void closeTab(int index);
     void closeOtherTabs(int index);
+    void showIconOnly(int index, bool show);
     void reloadTab(int index);
     void reloadAllTabs();
     void loadUrl(const QUrl &url, TabWidget::OpenUrlIn tab);
@@ -107,6 +108,7 @@ private slots:
     void cloneTab();
     void closeTab();
     void closeOtherTabs();
+    void showIconOnly(bool show);
     void reloadTab();
     void contextMenuRequested(const QPoint &position);
     void updateViewToolBarAction();
