@@ -182,7 +182,7 @@ void TabBar::contextMenuRequested(const QPoint &position)
 
         menu.addSeparator();
 
-        QAction *showIconAction = new QAction(tr("Show favicon only"), &menu);
+        QAction *showIconAction = new QAction(tr("Show Favicon Only"), &menu);
         showIconAction->setCheckable(true);
         showIconAction->setData(index);
         showIconAction->setChecked(tabWidget->webView(index)->showIconOnly());
