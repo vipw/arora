@@ -162,7 +162,6 @@ public slots:
     void reloadTab(int index = -1);
     void reloadAllTabs();
     void showIconOnly(int index, bool show);
-    void saveIconOnlyUrls();
     void nextTab();
     void previousTab();
     void bookmarkTabs();
@@ -192,6 +191,7 @@ private:
     QLabel *animationLabel(int index, bool addMovie);
     void retranslate();
     void setTitle(WebView *webView, const QString& title);
+    void saveIconOnlyUrls();
 
     QAction *m_recentlyClosedTabsAction;
     QAction *m_newTabAction;
