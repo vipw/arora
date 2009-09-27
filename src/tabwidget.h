@@ -205,7 +205,6 @@ private:
     QList<QUrl> m_recentlyClosedTabs;
     QList<QByteArray> m_recentlyClosedTabsHistory;
     QList<QUrl> m_iconOnlyUrls;
-    QList<QByteArray> m_recentlyClosedTabsHistory;
     QList<WebActionMapper*> m_actions;
     bool m_swappedDelayedWidget;
 
