@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Benjamin C. Meyer <ben@meyerhome.net>
+ * Copyright 2008-2009 Benjamin C. Meyer <ben@meyerhome.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -132,12 +132,12 @@ public:
     QAction *nextTabAction() const;
     QAction *previousTabAction() const;
 
-    QWidget *lineEditStack() const;
-    QLineEdit *currentLineEdit() const;
+    QWidget *locationBarStack() const;
+    QLineEdit *currentLocationBar() const;
     WebView *currentWebView() const;
     WebView *webView(int index) const;
     WebViewSearch *webViewSearch(int index) const;
-    QLineEdit *lineEdit(int index) const;
+    QLineEdit *locationBar(int index) const;
     int webViewIndex(WebView *webView) const;
     WebView *makeNewTab(bool makeCurrent = false);
 
@@ -154,6 +154,7 @@ public slots:
     void loadString(const QString &string, OpenUrlIn tab = CurrentTab);
     void loadUrlFromUser(const QUrl &url, const QString &title = QString());
     void loadUrl(const QUrl &url, TabWidget::OpenUrlIn tab = CurrentTab, const QString &title = QString());
+    void createTab(const QByteArray &historyState, TabWidget::OpenUrlIn tab = CurrentTab);
     void newTab();
     void cloneTab(int index = -1);
     void closeTab(int index = -1);
@@ -161,6 +162,7 @@ public slots:
     void reloadTab(int index = -1);
     void reloadAllTabs();
     void showIconOnly(int index, bool show);
+    void saveIconOnlyUrls();
     void nextTab();
     void previousTab();
     void bookmarkTabs();
@@ -190,7 +192,6 @@ private:
     QLabel *animationLabel(int index, bool addMovie);
     void retranslate();
     void setTitle(WebView *webView, const QString& title);
-    void saveIconOnlyUrls();
 
     QAction *m_recentlyClosedTabsAction;
     QAction *m_newTabAction;
@@ -203,11 +204,12 @@ private:
     static const int m_recentlyClosedTabsSize = 10;
     QList<QUrl> m_recentlyClosedTabs;
     QList<QUrl> m_iconOnlyUrls;
+    QList<QByteArray> m_recentlyClosedTabsHistory;
     QList<WebActionMapper*> m_actions;
     bool m_swappedDelayedWidget;
 
     QCompleter *m_lineEditCompleter;
-    QStackedWidget *m_lineEdits;
+    QStackedWidget *m_locationBars;
     TabBar *m_tabBar;
 };
 
