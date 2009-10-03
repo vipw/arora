@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Benjamin C. Meyer <ben@meyerhome.net>
+ * Copyright 2008-2009 Benjamin C. Meyer <ben@meyerhome.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -164,6 +164,7 @@ public slots:
     void nextTab();
     void previousTab();
     void bookmarkTabs();
+    void showIconOnly(int index, bool show);
 
 private slots:
     void currentChanged(int index);
@@ -189,6 +190,8 @@ private:
     static QUrl guessUrlFromString(const QString &url);
     QLabel *animationLabel(int index, bool addMovie);
     void retranslate();
+    void setTitle(WebView *webView, const QString& title);
+    void saveIconOnlyUrls();
 
     QAction *m_recentlyClosedTabsAction;
     QAction *m_newTabAction;
@@ -200,6 +203,7 @@ private:
     QMenu *m_recentlyClosedTabsMenu;
     static const int m_recentlyClosedTabsSize = 10;
     QList<QUrl> m_recentlyClosedTabs;
+    QList<QUrl> m_iconOnlyUrls;
     QList<QByteArray> m_recentlyClosedTabsHistory;
     QList<WebActionMapper*> m_actions;
     bool m_swappedDelayedWidget;

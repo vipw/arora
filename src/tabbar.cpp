@@ -63,6 +63,7 @@
 #include "tabbar.h"
 
 #include "tabwidget.h"
+#include "webview.h"
 
 #include <qaction.h>
 #include <qapplication.h>
@@ -178,6 +179,15 @@ void TabBar::contextMenuRequested(const QPoint &position)
         action = menu.addAction(tr("Close &Other Tabs"),
                                 this, SLOT(closeOtherTabs()));
         action->setData(index);
+	menu.addSeparator();
+
+        QAction *showIconAction = new QAction(tr("Show Favicon Only"), &menu);
+        showIconAction->setCheckable(true);
+        showIconAction->setData(index);
+        showIconAction->setChecked(tabWidget->webView(index)->showIconOnly());
+        menu.addAction(showIconAction);
+        connect(showIconAction, SIGNAL(toggled(bool)),
+                this, SLOT(showIconOnly(bool)));
 
         menu.addSeparator();
 
@@ -305,6 +315,14 @@ void TabBar::dropEvent(QDropEvent *event)
     }
 
     QTabBar::dropEvent(event);
+}
+
+void TabBar::showIconOnly(bool show)
+{
+    if (QAction *action = qobject_cast<QAction*>(sender())) {
+        int index = action->data().toInt();
+        emit showIconOnly(index, show);
+    }
 }
 
 QSize TabBar::tabSizeHint(int index) const

@@ -82,6 +82,7 @@ signals:
     void reloadTab(int index);
     void reloadAllTabs();
     void loadUrl(const QUrl &url, TabWidget::OpenUrlIn tab);
+    void showIconOnly(int index, bool show);
 
 public:
     TabBar(QWidget *parent = 0);
@@ -111,6 +112,7 @@ private slots:
     void contextMenuRequested(const QPoint &position);
     void updateViewToolBarAction();
     void viewTabBar();
+    void showIconOnly(bool show);
 
 private:
     void updateVisibility();
