@@ -10,4 +10,5 @@ SOURCES += \
   webpluginfactory.cpp
 
 include(clicktoflash/clicktoflash.pri)
+include(gnash/gnash.pri)
 
