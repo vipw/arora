@@ -133,7 +133,7 @@ QList<WebPageLinkedResource> WebPage::linkedResources(const QString &relation)
 #if QT_VERSION >= 0x040600 || defined(WEBKIT_TRUNK)
     QUrl baseUrl = mainFrame()->baseUrl();
 
-    QList<QWebElement> linkElements = mainFrame()->findAllElements(QLatin1String("html > head > link"));
+    QWebElementCollection linkElements = mainFrame()->findAllElements(QLatin1String("html > head > link"));
 
     foreach (const QWebElement &linkElement, linkElements) {
         QString rel = linkElement.attribute(QLatin1String("rel"));
@@ -223,6 +223,26 @@ void WebPage::addExternalBinding(QWebFrame *frame)
                 this, SLOT(addExternalBinding()));
     }
     frame->addToJavaScriptWindowObject(QLatin1String("external"), m_javaScriptExternalObject);
+}
+
+QString WebPage::userAgent()
+{
+    return s_userAgent;
+}
+
+void WebPage::setUserAgent(const QString &userAgent)
+{
+    if (userAgent == s_userAgent)
+        return;
+
+    QSettings settings;
+    if (userAgent.isEmpty()) {
+        settings.remove(QLatin1String("userAgent"));
+    } else {
+        settings.setValue(QLatin1String("userAgent"), userAgent);
+    }
+
+    s_userAgent = userAgent;
 }
 
 QString WebPage::userAgentForUrl(const QUrl &url) const

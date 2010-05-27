@@ -87,7 +87,9 @@
 #include <qwebframe.h>
 
 #if QT_VERSION >= 0x040600 || defined(WEBKIT_TRUNK)
+#if !defined(QTWEBKIT_VERSION) || QTWEBKIT_VERSION < 0x020000
 Q_DECLARE_METATYPE(QWebElement)
+#endif
 #include <qinputdialog.h>
 #include <qlabel.h>
 #include <qmessagebox.h>
@@ -152,11 +154,14 @@ void WebView::loadSettings()
     QSettings settings;
     settings.beginGroup(QLatin1String("WebView"));
     m_enableAccessKeys = settings.value(QLatin1String("enableAccessKeys"), m_enableAccessKeys).toBool();
+
+    if (!m_enableAccessKeys)
+        hideAccessKeys();
 #endif
     m_page->loadSettings();
 }
 
-#if !(QT_VERSION >= 0x040600 || defined(WEBKIT_TRUNK))
+#if !(QT_VERSION >= 0x040600)
 #include <qdir.h>
 // DO NOT CHANGE ANYTHING IN THIS FUNCTION
 // You want to change TabWidget::guessUrlFromString()
@@ -439,7 +444,7 @@ void WebView::addSearchEngine()
 
     QUrl searchUrl(page()->mainFrame()->baseUrl().resolved(QUrl(formElement.attribute(QLatin1String("action")))));
     QMap<QString, QString> searchEngines;
-    QList<QWebElement> inputFields = formElement.findAll(QLatin1String("input"));
+    QWebElementCollection inputFields = formElement.findAll(QLatin1String("input"));
     foreach (QWebElement inputField, inputFields) {
         QString type = inputField.attribute(QLatin1String("type"), QLatin1String("text"));
         QString name = inputField.attribute(QLatin1String("name"));
@@ -461,14 +466,14 @@ void WebView::addSearchEngine()
         }
     }
 
-    QList<QWebElement> selectFields = formElement.findAll(QLatin1String("select"));
+    QWebElementCollection selectFields = formElement.findAll(QLatin1String("select"));
     foreach (QWebElement selectField, selectFields) {
         QString name = selectField.attribute(QLatin1String("name"));
         int selectedIndex = selectField.evaluateJavaScript(QLatin1String("this.selectedIndex")).toInt();
         if (selectedIndex == -1)
             continue;
 
-        QList<QWebElement> options = selectField.findAll(QLatin1String("option"));
+        QWebElementCollection options = selectField.findAll(QLatin1String("option"));
         QString value = options.at(selectedIndex).toPlainText();
         searchUrl.addQueryItem(name, value);
     }
@@ -485,8 +490,8 @@ void WebView::addSearchEngine()
     }
 
     QString engineName;
-    QList<QWebElement> labels = formElement.findAll(QString(QLatin1String("label[for=\"%1\"]")).arg(elementName));
-    if (!labels.isEmpty())
+    QWebElementCollection labels = formElement.findAll(QString(QLatin1String("label[for=\"%1\"]")).arg(elementName));
+    if (labels.count() > 0)
         engineName = labels.at(0).toPlainText();
 
     engineName = QInputDialog::getText(this, tr("Engine name"), tr("Type in a name for the engine"),
@@ -699,7 +704,7 @@ void WebView::keyPressEvent(QKeyEvent *event)
             }
             hideAccessKeys();
         } else {
-            QTimer::singleShot(200, this, SLOT(accessKeyShortcut()));
+            QTimer::singleShot(300, this, SLOT(accessKeyShortcut()));
         }
     }
 #endif
@@ -824,7 +829,7 @@ void WebView::showAccessKeys()
     // Priority first goes to elements with accesskey attributes
     QList<QWebElement> alreadyLabeled;
     foreach (const QString &elementType, supportedElement) {
-        QList<QWebElement> result = page()->mainFrame()->findAllElements(elementType);
+        QList<QWebElement> result = page()->mainFrame()->findAllElements(elementType).toList();
         foreach (const QWebElement &element, result) {
             const QRect geometry = element.geometry();
             if (geometry.size().isEmpty()
@@ -853,7 +858,7 @@ void WebView::showAccessKeys()
     // Pick an access key first from the letters in the text and then from the
     // list of unused access keys
     foreach (const QString &elementType, supportedElement) {
-        QList<QWebElement> result = page()->mainFrame()->findAllElements(elementType);
+        QWebElementCollection result = page()->mainFrame()->findAllElements(elementType);
         foreach (const QWebElement &element, result) {
             const QRect geometry = element.geometry();
             if (unusedKeys.isEmpty()

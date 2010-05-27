@@ -105,15 +105,12 @@ BrowserApplication::BrowserApplication(int &argc, char **argv)
 {
     QCoreApplication::setOrganizationDomain(QLatin1String("arora-browser.org"));
     QCoreApplication::setApplicationName(QLatin1String("Arora"));
-    QString version = QLatin1String("0.10.1");
-    QString gitVersion = QLatin1String(GITCHANGENUMBER);
-    if (gitVersion != QLatin1String("0")
-        && !gitVersion.isEmpty())
-        version += QString(QLatin1String(" (Git: %1 %2)"))
-                    .arg(QLatin1String(GITCHANGENUMBER))
-                    .arg(QLatin1String(GITVERSION));
+    QCoreApplication::setApplicationVersion(QLatin1String("0.10.2"
+#ifdef GITVERSION
+    " (Git: " GITCHANGENUMBER " " GITVERSION ")"
+#endif
+    ));
 
-    QCoreApplication::setApplicationVersion(version);
 #ifndef AUTOTESTS
     connect(this, SIGNAL(messageReceived(QLocalSocket *)),
             this, SLOT(messageReceived(QLocalSocket *)));
@@ -285,7 +282,9 @@ void BrowserApplication::quitBrowser()
         }
 
         if (tabCount > 1) {
-            int ret = QMessageBox::warning(mainWindow(), QString(),
+            QWidget *widget = mainWindow();
+            QApplication::alert(widget);
+            int ret = QMessageBox::warning(widget, QString(),
                                tr("There are %1 windows and %2 tabs open\n"
                                   "Do you want to quit anyway?").arg(m_mainWindows.count()).arg(tabCount),
                                QMessageBox::Yes | QMessageBox::No,

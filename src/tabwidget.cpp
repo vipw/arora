@@ -107,7 +107,6 @@ TabWidget::TabWidget(QWidget *parent)
     , m_nextTabAction(0)
     , m_previousTabAction(0)
     , m_recentlyClosedTabsMenu(0)
-    , m_swappedDelayedWidget(false)
     , m_lineEditCompleter(0)
     , m_locationBars(0)
     , m_tabBar(new TabBar(this))
@@ -335,37 +334,12 @@ WebView *TabWidget::webView(int index) const
     QWidget *widget = this->widget(index);
     if (WebViewWithSearch *webViewWithSearch = qobject_cast<WebViewWithSearch*>(widget)) {
         return webViewWithSearch->m_webView;
-    } else if (widget) {
-        // optimization to delay creating the first webview
-        if (count() == 1) {
-            TabWidget *that = const_cast<TabWidget*>(this);
-            that->setUpdatesEnabled(false);
-            LocationBar *currentLocationBar = qobject_cast<LocationBar*>(m_locationBars->widget(0));
-            bool giveBackFocus = currentLocationBar->hasFocus();
-            m_locationBars->removeWidget(currentLocationBar);
-            m_locationBars->addWidget(new QWidget());
-            that->newTab();
-            that->closeTab(0);
-            QWidget *newEmptyLineEdit = m_locationBars->widget(0);
-            m_locationBars->removeWidget(newEmptyLineEdit);
-            newEmptyLineEdit->deleteLater();
-            m_locationBars->addWidget(currentLocationBar);
-            currentLocationBar->setWebView(currentWebView());
-            if (giveBackFocus)
-                currentLocationBar->setFocus();
-            that->setUpdatesEnabled(true);
-            that->m_swappedDelayedWidget = true;
-            return currentWebView();
-        }
     }
     return 0;
 }
 
 WebViewSearch *TabWidget::webViewSearch(int index) const
 {
-    // so the optimization can be performed
-    webView(index);
-
     QWidget *widget = this->widget(index);
     if (WebViewWithSearch *webViewWithSearch = qobject_cast<WebViewWithSearch*>(widget)) {
         return webViewWithSearch->m_webViewSearch;
@@ -417,21 +391,6 @@ WebView *TabWidget::makeNewTab(bool makeCurrent)
 #ifndef AUTOTESTS
     QWidget::setTabOrder(locationBar, qFindChild<ToolbarSearch*>(BrowserMainWindow::parentWindow(this)));
 #endif
-
-    // optimization to delay creating the more expensive WebView, history, etc
-    if (count() == 0) {
-        QWidget *emptyWidget = new QWidget;
-        QPalette p = emptyWidget->palette();
-        p.setColor(QPalette::Window, palette().color(QPalette::Base));
-        emptyWidget->setPalette(p);
-        emptyWidget->setAutoFillBackground(true);
-        disconnect(this, SIGNAL(currentChanged(int)),
-                   this, SLOT(currentChanged(int)));
-        addTab(emptyWidget, tr("Untitled"));
-        connect(this, SIGNAL(currentChanged(int)),
-                this, SLOT(currentChanged(int)));
-        return 0;
-    }
 
     // webview
     WebView *webView = new WebView;
@@ -618,7 +577,10 @@ void TabWidget::closeTab(int index)
         m_recentlyClosedTabsAction->setEnabled(true);
         m_recentlyClosedTabs.prepend(tab->url());
 #if QT_VERSION >= 0x040600
-        m_recentlyClosedTabsHistory.prepend(tab->history()->saveState());
+        QByteArray tabHistory;
+        QDataStream tabHistoryStream(&tabHistory, QIODevice::WriteOnly);
+        tabHistoryStream << *tab->history();
+        m_recentlyClosedTabsHistory.prepend(tabHistory);
 #else
         m_recentlyClosedTabsHistory.prepend(QByteArray());
 #endif
@@ -859,7 +821,11 @@ QUrl TabWidget::guessUrlFromString(const QString &string)
     if (url.isValid())
         return url;
 
+#if QT_VERSION >= 0x040600
+    url = QUrl::fromUserInput(string);
+#else
     url = WebView::guessUrlFromString(string);
+#endif
 
     if (url.scheme() == QLatin1String("about")
         && url.path() == QLatin1String("home"))
@@ -974,7 +940,9 @@ void TabWidget::loadUrl(const QUrl &url, OpenUrlIn tab, const QString &title)
         return;
     WebView *webView = getView(tab, currentWebView());
     if (webView) {
-        locationBar(webViewIndex(webView))->setText(QString::fromUtf8(url.toEncoded()));
+        int index = webViewIndex(webView);
+        if (index != -1)
+            locationBar(index)->setText(QString::fromUtf8(url.toEncoded()));
         webView->loadUrl(url, title);
     }
 }
@@ -1058,18 +1026,17 @@ QByteArray TabWidget::saveState() const
     QStringList tabs;
     QList<QByteArray> tabsHistory;
     for (int i = 0; i < count(); ++i) {
-        if (!m_swappedDelayedWidget) {
-            tabs.append(QString::null);
-            tabsHistory.append(QByteArray());
-            continue;
-        }
         if (WebView *tab = webView(i)) {
             tabs.append(QString::fromUtf8(tab->url().toEncoded()));
 #if QT_VERSION >= 0x040600
-            if (tab->history()->count() != 0)
-                tabsHistory.append(tab->history()->saveState());
-            else
-                tabsHistory.append(QByteArray());
+            if (tab->history()->count() != 0) {
+                QByteArray tabHistory;
+                QDataStream tabHistoryStream(&tabHistory, QIODevice::WriteOnly);
+                tabHistoryStream << *tab->history();
+                tabsHistory.append(tabHistory);
+            } else {
+                tabsHistory << QByteArray();
+            }
 #else
             tabsHistory.append(QByteArray());
 #endif
@@ -1131,8 +1098,10 @@ bool TabWidget::restoreState(const QByteArray &state)
 void TabWidget::createTab(const QByteArray &historyState, TabWidget::OpenUrlIn tab)
 {
 #if QT_VERSION >= 0x040600
-    if (WebView *webView = getView(tab, currentWebView()))
-        webView->history()->restoreState(historyState);
+    if (WebView *webView = getView(tab, currentWebView())) {
+        QDataStream historyStream(historyState);
+        historyStream >> *webView->history();
+    }
 #else
     qWarning() << "Warning: TabWidget::createTab should not be called, but it is...";
     Q_UNUSED(historyState);

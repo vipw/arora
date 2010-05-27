@@ -15,19 +15,12 @@ UI_DIR      = $$PWD/.ui
 MOC_DIR     = $$PWD/.moc
 OBJECTS_DIR = $$PWD/.obj
 
-
-win32 {
-    DEFINES += GITVERSION=0
-    DEFINES += GITCHANGENUMBER=0
-} else {
-    exists($$PWD/../.git/HEAD) {
-        GITVERSION=$$system(git log -n1 --pretty=format:%h)
-        DEFINES += GITVERSION=\"\\\"$$GITVERSION\\\"\"
+exists(../.git/HEAD) {
+    GITVERSION=$$system(git log -n1 --pretty=format:%h)
+    !isEmpty(GITVERSION) {
         GITCHANGENUMBER=$$system(git log --pretty=format:%h | wc -l)
+        DEFINES += GITVERSION=\"\\\"$$GITVERSION\\\"\"
         DEFINES += GITCHANGENUMBER=\"\\\"$$GITCHANGENUMBER\\\"\"
-    } else {
-        DEFINES += GITVERSION=\"\\\"0\\\"\"
-        DEFINES += GITCHANGENUMBER=\"\\\"0\\\"\"
     }
 }
 
@@ -104,6 +97,7 @@ include(network/network.pri)
 include(opensearch/opensearch.pri)
 include(qwebplugins/qwebplugins.pri)
 include(utils/utils.pri)
+include(useragent/useragent.pri)
 
 RESOURCES += \
     $$PWD/data/data.qrc \

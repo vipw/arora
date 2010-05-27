@@ -85,6 +85,7 @@
 #include "tabbar.h"
 #include "tabwidget.h"
 #include "toolbarsearch.h"
+#include "useragentmenu.h"
 #include "webview.h"
 #include "webviewsearch.h"
 
@@ -830,9 +831,13 @@ void BrowserMainWindow::setupMenu()
     m_toolsMenu->addAction(m_toolsEnableInspectorAction);
 
     m_toolsSearchManagerAction = new QAction(m_toolsMenu);
+    m_toolsSearchManagerAction->setMenuRole(QAction::NoRole);
     connect(m_toolsSearchManagerAction, SIGNAL(triggered()),
             this, SLOT(showSearchDialog()));
     m_toolsMenu->addAction(m_toolsSearchManagerAction);
+
+    m_toolsUserAgentMenu = new UserAgentMenu(m_toolsMenu);
+    m_toolsMenu->addMenu(m_toolsUserAgentMenu);
 
     m_adBlockDialogAction = new QAction(m_toolsMenu);
     connect(m_adBlockDialogAction, SIGNAL(triggered()),
@@ -840,7 +845,8 @@ void BrowserMainWindow::setupMenu()
     m_toolsMenu->addAction(m_adBlockDialogAction);
 
     m_toolsMenu->addSeparator();
-    m_toolsPreferencesAction = new QAction(m_editMenu);
+    m_toolsPreferencesAction = new QAction(m_toolsMenu);
+    m_toolsPreferencesAction->setMenuRole(QAction::PreferencesRole);
     connect(m_toolsPreferencesAction, SIGNAL(triggered()),
             this, SLOT(preferences()));
     m_toolsMenu->addAction(m_toolsPreferencesAction);
@@ -994,6 +1000,7 @@ void BrowserMainWindow::retranslate()
     m_toolsPreferencesAction->setText(tr("Options..."));
     m_toolsPreferencesAction->setShortcut(tr("Ctrl+,"));
     m_toolsSearchManagerAction->setText(tr("Configure Search Engines..."));
+    m_toolsUserAgentMenu->setTitle(tr("User Agent"));
     m_adBlockDialogAction->setText(tr("&Ad Block..."));
 
     m_helpMenu->setTitle(tr("&Help"));
@@ -1043,8 +1050,8 @@ void BrowserMainWindow::setupToolBar()
 
     m_toolbarSearch = new ToolbarSearch(m_navigationBar);
     m_navigationSplitter->addWidget(m_toolbarSearch);
-    connect(m_toolbarSearch, SIGNAL(search(const QUrl&)),
-            m_tabWidget, SLOT(loadUrl(const QUrl&)));
+    connect(m_toolbarSearch, SIGNAL(search(const QUrl&, TabWidget::OpenUrlIn)),
+            m_tabWidget, SLOT(loadUrl(const QUrl&, TabWidget::OpenUrlIn)));
     m_navigationSplitter->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
     m_tabWidget->locationBarStack()->setMinimumWidth(120);
     m_navigationSplitter->setCollapsible(0, false);
@@ -1296,6 +1303,7 @@ void BrowserMainWindow::closeEvent(QCloseEvent *event)
         settings.beginGroup(QLatin1String("tabs"));
         bool confirm = settings.value(QLatin1String("confirmClosingMultipleTabs"), true).toBool();
         if (confirm) {
+            QApplication::alert(this);
             int ret = QMessageBox::warning(this, QString(),
                                            tr("Are you sure you want to close the window?"
                                               "  There are %1 tabs open").arg(m_tabWidget->count()),

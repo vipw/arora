@@ -73,10 +73,11 @@
 #include <qfiledialog.h>
 #include <qfileiconprovider.h>
 #include <qheaderview.h>
-#include <qmetaobject.h>
 #include <qmessagebox.h>
-#include <qsettings.h>
+#include <qmetaobject.h>
 #include <qmimedata.h>
+#include <qprocess.h>
+#include <qsettings.h>
 
 #include <qdebug.h>
 
@@ -97,6 +98,7 @@ DownloadItem::DownloadItem(QNetworkReply *reply, bool requestFileName, QWidget *
     , m_startedSaving(false)
     , m_finishedDownloading(false)
     , m_gettingFileName(false)
+    , m_canceledFileSelect(false)
 {
     setupUi(this);
     QPalette p = downloadInfoLabel->palette();
@@ -171,6 +173,7 @@ void DownloadItem::getFileName()
             progressBar->setVisible(false);
             stop();
             fileNameLabel->setText(tr("Download canceled: %1").arg(QFileInfo(defaultFileName).fileName()));
+            m_canceledFileSelect = true;
             return;
         }
         QFileInfo fileInfo = QFileInfo(fileName);
@@ -415,7 +418,7 @@ void DownloadItem::updateInfoLabel()
         if (m_bytesReceived == bytesTotal)
             info = DownloadManager::dataString(m_output.size());
         else
-            info = tr("%1 of %2 - Stopped")
+            info = tr("%1 of %2 - Download Complete")
                 .arg(DownloadManager::dataString(m_bytesReceived))
                 .arg(DownloadManager::dataString(bytesTotal));
     }
@@ -513,9 +516,33 @@ bool DownloadManager::allowQuit()
     return true;
 }
 
+bool DownloadManager::externalDownload(const QUrl &url)
+{
+    QSettings settings;
+    settings.beginGroup(QLatin1String("downloadmanager"));
+    if (!settings.value(QLatin1String("external"), false).toBool())
+        return false;
+
+    QString program = settings.value(QLatin1String("externalPath")).toString();
+    if (program.isEmpty())
+        return false;
+
+    // Split program at every space not inside double quotes
+    QRegExp regex(QLatin1String("\"([^\"]+)\"|([^ ]+)"));
+    QStringList args;
+    for (int pos = 0; (pos = regex.indexIn(program, pos)) != -1; pos += regex.matchedLength())
+        args << regex.cap(1) + regex.cap(2);
+    if (args.isEmpty())
+        return false;
+
+    return QProcess::startDetached(args.takeFirst(), args << QString::fromUtf8(url.toEncoded()));
+}
+
 void DownloadManager::download(const QNetworkRequest &request, bool requestFileName)
 {
     if (request.url().isEmpty())
+        return;
+    if (externalDownload(request.url()))
         return;
     handleUnsupportedContent(m_manager->get(request), requestFileName);
 }
@@ -524,6 +551,9 @@ void DownloadManager::handleUnsupportedContent(QNetworkReply *reply, bool reques
 {
     if (!reply || reply->url().isEmpty())
         return;
+    if (externalDownload(reply->url()))
+        return;
+
     QVariant header = reply->header(QNetworkRequest::ContentLengthHeader);
     bool ok;
     int size = header.toInt(&ok);
@@ -536,6 +566,9 @@ void DownloadManager::handleUnsupportedContent(QNetworkReply *reply, bool reques
 
     DownloadItem *item = new DownloadItem(reply, requestFileName, this);
     addItem(item);
+
+    if (item->m_canceledFileSelect)
+        return;
 
     if (!isVisible())
         show();
